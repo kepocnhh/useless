@@ -40,5 +40,7 @@ jobs:
           echo "GITHUB_RUN_ID=$GITHUB_RUN_ID" >> /tmp/build${GITHUB_RUN_NUMBER}.env
           docker run --rm \
            -e VCS_PAT=$VCS_PAT \
+           -e VCS_DOMAIN="https://api.github.com" \
            --env-file /tmp/build${GITHUB_RUN_NUMBER}.env \
-           --name container.verify image.verify:$GITHUB_RUN_NUMBER
+           --name container.verify image.verify:$GITHUB_RUN_NUMBER \
+           /bin/bash repository/buildSrc/src/main/resources/bash/workflow/verify/main.sh

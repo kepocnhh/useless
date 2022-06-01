@@ -5,8 +5,6 @@ arg REPOSITORY_OWNER
 arg REPOSITORY_NAME
 arg GIT_SOURCE
 
-env VCS_DOMAIN="https://api.github.com"
-
 run mkdir -p /${REPOSITORY_OWNER}/${REPOSITORY_NAME}/repository
 
 workdir /${REPOSITORY_OWNER}/${REPOSITORY_NAME}
@@ -16,5 +14,3 @@ run git -C repository init && \
   https://${VCS_PAT}@github.com/${REPOSITORY_OWNER}/${REPOSITORY_NAME}.git && \
  git -C repository fetch --depth=1 origin $GIT_SOURCE && \
  git -C repository checkout FETCH_HEAD
-
-cmd /bin/bash repository/buildSrc/src/main/resources/bash/workflow/verify/main.sh
