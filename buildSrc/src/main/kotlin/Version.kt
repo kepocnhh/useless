@@ -1,4 +1,5 @@
 object Version {
+    const val detekt = "1.20.0"
     const val jacoco = "0.8.8"
     const val jvmTarget = "1.8"
     const val junit = "4.13.2"
