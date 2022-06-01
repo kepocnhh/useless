@@ -11,3 +11,7 @@ tasks.getByName<JavaCompile>("compileJava") {
 tasks.getByName<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>("compileKotlin") {
     kotlinOptions.jvmTarget = Version.jvmTarget
 }
+
+dependencies {
+    testImplementation("junit:junit:${Version.junit}")
+}
