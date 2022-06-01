@@ -5,6 +5,8 @@ arg REPOSITORY_OWNER
 arg REPOSITORY_NAME
 arg GIT_SOURCE
 
+env VCS_DOMAIN="https://api.github.com"
+
 run mkdir -p /${REPOSITORY_OWNER}/${REPOSITORY_NAME}/repository
 
 workdir /${REPOSITORY_OWNER}/${REPOSITORY_NAME}
