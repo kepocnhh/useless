@@ -77,3 +77,26 @@ task("verifyService") {
         }
     }
 }
+
+task("saveCommonInfo") {
+    doLast {
+        val result = setOf(
+            "version" to setOf(
+                "name" to Version.name
+            ),
+            "repository" to setOf(
+                "owner" to Repository.owner,
+                "name" to Repository.name
+            )
+        ).joinToString(prefix = "{", separator = ",", postfix = "}") { (key, value) ->
+            "\"$key\":" + value.joinToString(prefix = "{", separator = ",", postfix = "}") { (k, v) ->
+                "\"$k\":\"$v\""
+            }
+        }
+        File(buildDir, "common.json").also {
+            it.parentFile!!.mkdirs()
+            it.delete()
+            it.writeText(result)
+        }
+    }
+}
