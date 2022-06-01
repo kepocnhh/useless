@@ -7,6 +7,15 @@ fun File.existing(): File {
     return this
 }
 
+fun File.forEachRecurse(action: (File) -> Unit) {
+    action(this)
+    if (isDirectory) {
+        listFiles()?.forEach {
+            it.forEachRecurse(action)
+        }
+    }
+}
+
 object FileUtil {
     private fun File.findIssues(expected: Set<String>): Set<String> {
         if (!exists()) return setOf("the file does not exist")

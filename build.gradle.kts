@@ -56,3 +56,24 @@ task("verifyReadme") {
         )
     }
 }
+
+task("verifyLicense") {
+    doLast {
+        FileUtil.check(
+            file = File(rootDir, "LICENSE"),
+            expected = emptySet(),
+            report = File(buildDir, "reports/analysis/license/index.html")
+        )
+    }
+}
+
+task("verifyService") {
+    doLast {
+        val forbidden = setOf(".DS_Store")
+        rootDir.forEachRecurse {
+            if (!it.isDirectory) check(!forbidden.contains(it.name)) {
+                "File by path ${it.absolutePath} is forbidden!"
+            }
+        }
+    }
+}
