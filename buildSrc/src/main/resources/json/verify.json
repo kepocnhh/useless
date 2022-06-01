@@ -1,14 +1,27 @@
 {
   "README": {
     "report": "build/reports/analysis/readme",
+    "path": "analysis/readme",
     "task": "verifyReadme"
   },
   "LICENSE": {
     "report": "build/reports/analysis/license",
+    "path": "analysis/license",
     "task": "verifyLicense"
   },
   "CODE_STYLE": {
     "report": "build/reports/analysis/code/style/html",
+    "path": "analysis/code/style",
     "task": "verifyCodeStyle"
+  },
+  "CODE_QUALITY_main": {
+    "report": "lib/build/reports/analysis/code/quality/main/html",
+    "path": "analysis/code/quality/main",
+    "task": "lib:verifyCodeQualityMain"
+  },
+  "CODE_QUALITY_test": {
+    "report": "lib/build/reports/analysis/code/quality/test/html",
+    "path": "analysis/code/quality/test",
+    "task": "lib:verifyCodeQualityTest"
   }
 }

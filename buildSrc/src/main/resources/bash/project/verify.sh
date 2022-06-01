@@ -13,18 +13,7 @@ for ((i=0; i<SIZE; i++)); do
  TASK="$(jq -Mcer ".${ARRAY[i]}.task" $ENVIRONMENT)" || exit 1 # todo
  gradle -p repository "$TASK"; CODE=$?
  if test $CODE -ne 0; then
-  echo "gradle verify $TASK error"; exit $((100+i))
- fi
-done
-
-ENVIRONMENT=repository/buildSrc/src/main/resources/json/code_quality.json
-ARRAY=(main test)
-SIZE=${#ARRAY[*]}
-for ((i=0; i<SIZE; i++)); do
- TASK="$(jq -Mcer ".CODE_QUALITY.${ARRAY[i]}.task" $ENVIRONMENT)" || exit 1 # todo
- gradle -p repository "$TASK"; CODE=$?
- if test $CODE -ne 0; then
-  echo "gradle $TASK error"; exit $((300+i))
+  echo "gradle $TASK error"; exit $((100+i))
  fi
 done
 
