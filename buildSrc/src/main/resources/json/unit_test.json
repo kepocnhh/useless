@@ -1,0 +1,13 @@
+{
+  "UNIT_TEST": {
+    "report": "lib/build/reports/tests/test",
+    "task": "lib:test",
+    "coverage": {
+      "report": "lib/build/reports/jacoco/test/html",
+      "task": "lib:jacocoTestReport",
+      "verification": {
+        "task": "lib:jacocoTestCoverageVerification"
+      }
+    }
+  }
+}

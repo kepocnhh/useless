@@ -11,8 +11,16 @@ mkdir -p assemble/vcs
 mkdir -p assemble/project
 /bin/bash $SCRIPTS/project/prepare.sh || exit 21
 /bin/bash $SCRIPTS/assemble/project/common.sh || exit 22
-/bin/bash $SCRIPTS/project/verify.sh || exit 23
 
+CODE=0
+
+/bin/bash $SCRIPTS/project/verify.sh; CODE=$?
+if test $CODE -ne 0; then
+ mkdir -p diagnostics/report
+ /bin/bash $SCRIPTS/project/diagnostics.sh
+ exit 1 # todo
+ exit 31
+fi
 exit 1 # todo
 
 exit 0

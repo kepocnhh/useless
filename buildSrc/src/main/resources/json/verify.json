@@ -1,0 +1,14 @@
+{
+  "README": {
+    "report": "build/reports/analysis/readme",
+    "task": "verifyReadme"
+  },
+  "LICENSE": {
+    "report": "build/reports/analysis/license",
+    "task": "verifyLicense"
+  },
+  "CODE_STYLE": {
+    "report": "build/reports/analysis/code/style/html",
+    "task": "verifyCodeStyle"
+  }
+}
