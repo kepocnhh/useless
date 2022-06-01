@@ -36,3 +36,23 @@ task<JavaExec>("verifyCodeStyle") {
         "--reporter=html,output=${File(buildDir, "reports/analysis/code/style/html/index.html")}"
     )
 }
+
+task("verifyReadme") {
+    doLast {
+        val badges = setOf(
+            MarkdownUtil.image(
+                text = "version",
+                url = BadgeUtil.url(
+                    label = "version",
+                    message = Version.name,
+                    color = "2962ff"
+                )
+            )
+        )
+        FileUtil.check(
+            file = File(rootDir, "README.md"),
+            expected = badges,
+            report = File(buildDir, "reports/analysis/readme/index.html")
+        )
+    }
+}
