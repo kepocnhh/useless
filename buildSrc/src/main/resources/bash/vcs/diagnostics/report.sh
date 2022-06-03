@@ -10,7 +10,7 @@ for it in VCS_PAT REPOSITORY_OWNER REPOSITORY_NAME \
  WORKER_NAME WORKER_EMAIL; do
  if test -z "${!it}"; then echo "$it is empty!"; exit 21; fi; done
 
-REPOSITORY=gh-pages/diagnostics/report
+REPOSITORY=pages/diagnostics/report
 mkdir -p $REPOSITORY || exit 1 # todo
 
 git -C $REPOSITORY init && \
@@ -21,7 +21,7 @@ git -C $REPOSITORY init && \
 
 RELATIVE_PATH=$GITHUB_RUN_NUMBER/$GITHUB_RUN_ID/diagnostics/report
 mkdir -p $REPOSITORY/build/$RELATIVE_PATH || exit 1 # todo
-cp -r diagnostics/report/* $REPOSITORY/$RELATIVE_PATH || exit 1 # todo
+cp -r diagnostics/report/* $REPOSITORY/build/$RELATIVE_PATH || exit 1 # todo
 
 COMMIT_MESSAGE="CI build #$GITHUB_RUN_NUMBER | $WORKER_NAME added diagnostics report"
 
@@ -45,7 +45,7 @@ if test $CODE -ne 0; then
  echo "Git commit failed!"; exit 42
 fi
 
-git -C $REPOSITORY push -f && \
+git -C $REPOSITORY push && \
  git -C $REPOSITORY push --tag; CODE=$?
 if test $CODE -ne 0; then
  echo "Git push failed!"; exit 43
