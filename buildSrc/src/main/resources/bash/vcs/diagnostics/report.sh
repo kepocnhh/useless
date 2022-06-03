@@ -2,12 +2,14 @@
 
 echo "VCS diagnostics report..."
 
-WORKER_NAME="$(jq -r .name assemble/vcs/worker.json)"
-WORKER_EMAIL="$(jq -r .email assemble/vcs/worker.json)"
+REQUIRE_FILLED_STRING="select((.!=null)and(type==\"string\")and(.!=\"\"))"
+
+WORKER_NAME="$(jq -cerM ".name|$REQUIRE_FILLED_STRING" assemble/vcs/worker.json)"
+WORKER_VCS_EMAIL="$(jq -cerM ".vcs_email|$REQUIRE_FILLED_STRING" assemble/vcs/worker.json)"
 
 for it in VCS_PAT REPOSITORY_OWNER REPOSITORY_NAME \
  GITHUB_RUN_NUMBER GITHUB_RUN_ID \
- WORKER_NAME WORKER_EMAIL; do
+ WORKER_NAME WORKER_VCS_EMAIL; do
  if test -z "${!it}"; then echo "$it is empty!"; exit 21; fi; done
 
 REPOSITORY=pages/diagnostics/report
@@ -25,7 +27,7 @@ cp -r diagnostics/report/* $REPOSITORY/build/$RELATIVE_PATH || exit 1 # todo
 
 COMMIT_MESSAGE="CI build #$GITHUB_RUN_NUMBER | $WORKER_NAME added diagnostics report"
 
-TYPES="$(jq -Mcer .types diagnostics/summary.json)" || exit 1 # todo
+TYPES="$(jq -cerM .types diagnostics/summary.json)" || exit 1 # todo
 if test "$TYPES" == "[]"; then
  echo "Diagnostics should have determined the cause of the failure!"; exit 1
 fi
@@ -33,7 +35,7 @@ COMMIT_MESSAGE="${COMMIT_MESSAGE} of ${TYPES} issues."
 
 CODE=0
 git -C $REPOSITORY config user.name "$WORKER_NAME" && \
- git -C $REPOSITORY config user.email "$WORKER_EMAIL"; CODE=$?
+ git -C $REPOSITORY config user.email "$WORKER_VCS_EMAIL"; CODE=$?
 if test $CODE -ne 0; then
  echo "Git config failed!"; exit 41
 fi
