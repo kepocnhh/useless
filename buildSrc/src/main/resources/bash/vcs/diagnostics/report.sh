@@ -27,7 +27,7 @@ cp -r diagnostics/report/* $REPOSITORY/build/$RELATIVE_PATH || exit 1 # todo
 
 COMMIT_MESSAGE="CI build #$GITHUB_RUN_NUMBER | $WORKER_NAME added diagnostics report"
 
-TYPES="$(jq -cerM .types diagnostics/summary.json)" || exit 1 # todo
+TYPES="$(jq -Mcer "keys|.[]" diagnostics/summary.json)" || exit 1 # todo
 if test "$TYPES" == "[]"; then
  echo "Diagnostics should have determined the cause of the failure!"; exit 1
 fi

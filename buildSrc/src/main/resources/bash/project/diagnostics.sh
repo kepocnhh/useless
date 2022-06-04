@@ -2,7 +2,7 @@
 
 echo "Project diagnostics..."
 
-echo "{\"types\":[]}" > diagnostics/summary.json
+echo "{}" > diagnostics/summary.json
 
 CODE=0
 
@@ -17,7 +17,7 @@ for ((i=0; i<SIZE; i++)); do
   RELATIVE="$(jq -Mcer ".${TYPE}.path" $ENVIRONMENT)" || exit 1 # todo
   mkdir -p diagnostics/report/$RELATIVE
   cp -r repository/$(jq -Mcer ".${TYPE}.report" $ENVIRONMENT)/* diagnostics/report/$RELATIVE || exit 1 # todo
-  echo "$(jq -cM ".types+=[\"$TYPE\"]" diagnostics/summary.json)" > diagnostics/summary.json || exit $((100+i))
+  echo "$(jq -cM ".$TYPE.path=\"$RELATIVE\"" diagnostics/summary.json)" > diagnostics/summary.json || exit $((100+i))
  fi
 done
 
@@ -28,7 +28,7 @@ if test $CODE -ne 0; then
  RELATIVE="$(jq -Mcer ".${TYPE}.path" $ENVIRONMENT)" || exit 1 # todo
  mkdir -p diagnostics/report/$RELATIVE
  cp -r repository/$(jq -Mcer ".${TYPE}.report" $ENVIRONMENT)/* diagnostics/report/$RELATIVE || exit 1 # todo
- echo "$(jq -cM ".types+=[\"$TYPE\"]" diagnostics/summary.json)" > diagnostics/summary.json || exit 121
+ echo "$(jq -cM ".$TYPE.path=\"$RELATIVE\"" diagnostics/summary.json)" > diagnostics/summary.json || exit 121
 else
  TYPE="${TYPE}.coverage"
  gradle -p repository "$(jq -Mcer ".${TYPE}.task" $ENVIRONMENT)" || exit 1 # todo
@@ -37,11 +37,11 @@ else
   RELATIVE="$(jq -Mcer ".${TYPE}.path" $ENVIRONMENT)" || exit 1 # todo
   mkdir -p diagnostics/report/$RELATIVE
   cp -r repository/$(jq -Mcer ".${TYPE}.report" $ENVIRONMENT)/* diagnostics/report/$RELATIVE || exit 1 # todo
-  echo "$(jq -cM ".types+=[\"$TYPE\"]" diagnostics/summary.json)" > diagnostics/summary.json || exit 122
+  echo "$(jq -cM ".$TYPE.path=\"$RELATIVE\"" diagnostics/summary.json)" > diagnostics/summary.json || exit 122
  fi
 fi
 
-TYPES="$(jq -Mcer .types diagnostics/summary.json)" || exit 1 # todo
+TYPES="$(jq -Mcer "keys|.[]" diagnostics/summary.json)" || exit 1 # todo
 if test "$TYPES" == "[]"; then
  echo "Diagnostics should have determined the cause of the failure!"; exit 1
 fi
