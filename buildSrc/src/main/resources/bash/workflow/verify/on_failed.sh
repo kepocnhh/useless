@@ -26,8 +26,9 @@ REPORT_PATH=$GITHUB_RUN_NUMBER/$GITHUB_RUN_ID/diagnostics/report
 for ((i=0; i<SIZE; i++)); do
  TYPE="${TYPES[i]}"
  RELATIVE="$(jq -Mcer ".${TYPE}.path|$REQUIRE_FILLED_STRING" $ENVIRONMENT)" || exit 1 # todo
+ TITLE="$(jq -Mcer ".${TYPE}.title|$REQUIRE_FILLED_STRING" $ENVIRONMENT)" || exit 1 # todo
  VERIFY_RESULT="${VERIFY_RESULT}
-    $((i+1))) [$TYPE](${PAGES_URL}/build/$REPORT_PATH/$RELATIVE/index.html)"
+    $((i+1))) [$TITLE](${PAGES_URL}/build/$REPORT_PATH/$RELATIVE/index.html)"
 done
 
 echo "VERIFY_RESULT:
