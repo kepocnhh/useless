@@ -50,11 +50,7 @@ else
 fi
 
 TYPES="$(jq -Mcer "keys" diagnostics/summary.json)" || exit 1 # todo
-if test "$TYPES" == ""; then
-  echo "Unexpected!"
-  cat diagnostics/summary.json
-  exit 1 # todo
-elif test "$TYPES" == "[]"; then
+if test "$TYPES" == "[]"; then
  echo "Diagnostics should have determined the cause of the failure!"; exit 1
 fi
 
