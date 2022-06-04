@@ -4,8 +4,6 @@ echo "Workflow verify on failed start..."
 
 REQUIRE_FILLED_STRING="select((.!=null)and(type==\"string\")and(.!=\"\"))"
 
-WORKER_NAME="$(jq -cerM ".name|$REQUIRE_FILLED_STRING" assemble/vcs/worker.json)"
-WORKER_VCS_EMAIL="$(jq -cerM ".vcs_email|$REQUIRE_FILLED_STRING" assemble/vcs/worker.json)"
 GIT_COMMIT_SHA="$(jq -cerM ".sha|$REQUIRE_FILLED_STRING" assemble/vcs/commit.json)"
 AUTHOR_NAME="$(jq -cerM ".name|$REQUIRE_FILLED_STRING" assemble/vcs/commit/author.json)"
 AUTHOR_URL="$(jq -cerM ".html_url|$REQUIRE_FILLED_STRING" assemble/vcs/commit/author.json)"
@@ -13,13 +11,12 @@ AUTHOR_URL="$(jq -cerM ".html_url|$REQUIRE_FILLED_STRING" assemble/vcs/commit/au
 for it in REPOSITORY_OWNER REPOSITORY_NAME \
  GITHUB_RUN_NUMBER GITHUB_RUN_ID \
  GIT_COMMIT_SHA \
- AUTHOR_NAME AUTHOR_URL \
- WORKER_NAME WORKER_VCS_EMAIL; do
+ AUTHOR_NAME AUTHOR_URL; do
  if test -z "${!it}"; then echo "$it is empty!"; exit 21; fi; done
 
 VERIFY_RESULT=" - see the report:"
 ENVIRONMENT=diagnostics/summary.json
-TYPES="$(jq -Mcer "keys|.[]" $ENVIRONMENT)" || exit 1 # todo
+TYPES=($(jq -Mcer "keys|.[]" $ENVIRONMENT))
 SIZE=${#TYPES[*]}
 if test $SIZE == 0; then
  echo "Diagnostics should have determined the cause of the failure!"; exit 1
@@ -35,6 +32,16 @@ done
 
 echo "VERIFY_RESULT:
 $VERIFY_RESULT" # todo
+
 exit 1 # todo
+
+REPOSITORY_URL=https://github.com/$REPOSITORY_OWNER/$REPOSITORY_NAME
+
+MESSAGE="CI build [#$GITHUB_RUN_NUMBER]($REPOSITORY_URL/actions/runs/$GITHUB_RUN_ID) failed!
+[$REPOSITORY_OWNER](https://github.com/$REPOSITORY_OWNER) / [$REPOSITORY_NAME]($REPOSITORY_URL)
+ - source [${GIT_COMMIT_SHA::7}]($REPOSITORY_URL/commit/$GIT_COMMIT_SHA) by [$AUTHOR_NAME]($AUTHOR_URL)
+$VERIFY_RESULT"
+
+/bin/bash repository/buildSrc/src/main/resources/bash/notification/telegram/send_message.sh "$MESSAGE" || exit 31
 
 exit 0
