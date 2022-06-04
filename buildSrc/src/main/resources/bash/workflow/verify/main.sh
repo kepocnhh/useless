@@ -7,6 +7,7 @@ SCRIPTS=repository/buildSrc/src/main/resources/bash
 mkdir -p assemble/vcs
 /bin/bash $SCRIPTS/assemble/vcs/repository.sh || exit 11
 /bin/bash $SCRIPTS/assemble/vcs/worker.sh || exit 12
+/bin/bash $SCRIPTS/assemble/vcs/commit.sh || exit 13
 
 mkdir -p assemble/project
 /bin/bash $SCRIPTS/project/prepare.sh || exit 21
