@@ -3,15 +3,15 @@
     "report": "lib/build/reports/tests/test",
     "path": "unit/test",
     "title": "Unit test",
-    "task": "lib:test",
-    "coverage": {
-      "report": "lib/build/reports/jacoco/test/html",
-      "path": "test/coverage",
-      "title": "Unit test coverage",
-      "task": "lib:jacocoTestReport",
-      "verification": {
-        "task": "lib:jacocoTestCoverageVerification"
-      }
+    "task": "lib:test"
+  },
+  "TEST_COVERAGE": {
+    "report": "lib/build/reports/jacoco/test/html",
+    "path": "test/coverage",
+    "title": "Test coverage",
+    "task": "lib:jacocoTestReport",
+    "verification": {
+      "task": "lib:jacocoTestCoverageVerification"
     }
   }
 }

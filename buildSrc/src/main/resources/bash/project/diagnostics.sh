@@ -36,7 +36,7 @@ if test $CODE -ne 0; then
  echo "$(jq -cM ".$TYPE.path=\"$RELATIVE\"" diagnostics/summary.json)" > diagnostics/summary.json || exit 121
  echo "$(jq -cM ".$TYPE.title=\"$TITLE\"" diagnostics/summary.json)" > diagnostics/summary.json || exit 121
 else
- TYPE="${TYPE}.coverage"
+ TYPE="TEST_COVERAGE"
  gradle -p repository "$(jq -Mcer ".${TYPE}.task|$REQUIRE_FILLED_STRING" $ENVIRONMENT)" || exit 1 # todo
  gradle -p repository "$(jq -Mcer ".${TYPE}.verification.task|$REQUIRE_FILLED_STRING" $ENVIRONMENT)"; CODE=$?
  if test $CODE -ne 0; then

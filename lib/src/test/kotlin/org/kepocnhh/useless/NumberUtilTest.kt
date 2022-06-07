@@ -11,6 +11,11 @@ class NumberUtilTest {
 
     @Test
     fun getOneTest() {
-        TODO()
+        assertEquals(1, NumberUtil.getOne())
+    }
+
+    @Test
+    fun getTwoTest() {
+        assertEquals(2, NumberUtil.getTwo())
     }
 }
