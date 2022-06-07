@@ -59,7 +59,7 @@ style:
     maxJumpCount: 1
   MagicNumber:
     active: true
-    ignoreNumbers: []
+    ignoreNumbers: ['-1', '0', '1', '2']
     ignoreHashCodeFunction: false
     ignorePropertyDeclaration: false
     ignoreLocalVariableDeclaration: false
