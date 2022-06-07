@@ -31,11 +31,6 @@ for ((i=0; i<SIZE; i++)); do
     $((i+1))) [$TITLE](${PAGES_URL}/build/$REPORT_PATH/$RELATIVE/index.html)"
 done
 
-echo "VERIFY_RESULT:
-$VERIFY_RESULT" # todo
-
-exit 1 # todo
-
 REPOSITORY_URL=https://github.com/$REPOSITORY_OWNER/$REPOSITORY_NAME
 
 MESSAGE="CI build [#$GITHUB_RUN_NUMBER]($REPOSITORY_URL/actions/runs/$GITHUB_RUN_ID) failed!

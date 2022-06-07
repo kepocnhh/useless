@@ -7,7 +7,7 @@ CODE=0
 gradle -p repository verifyService || exit 1 # todo
 
 ENVIRONMENT=repository/buildSrc/src/main/resources/json/verify.json
-ARRAY=($(jq -Mcer ".|keys|.[]" $ENVIRONMENT))
+ARRAY=($(jq -Mcer "keys|.[]" $ENVIRONMENT))
 SIZE=${#ARRAY[*]}
 for ((i=0; i<SIZE; i++)); do
  TASK="$(jq -Mcer ".${ARRAY[i]}.task" $ENVIRONMENT)" || exit 1 # todo

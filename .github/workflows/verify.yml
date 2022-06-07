@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       git_source:
-        description: "GIT source name. For example [dev, 087cc5a...]."
+        description: "GIT source name. For example [dev, wip...]."
         required: true
         default: "dev"
 
@@ -15,6 +15,9 @@ jobs:
       REPOSITORY_OWNER: kepocnhh
       REPOSITORY_NAME: useless
       VCS_PAT: ${{secrets.PERSONAL_ACCESS_TOKEN}}
+      TELEGRAM_BOT_ID: ${{secrets.TELEGRAM_BOT_ID}}
+      TELEGRAM_BOT_TOKEN: ${{secrets.TELEGRAM_BOT_TOKEN}}
+      TELEGRAM_CHAT_ID: ${{secrets.TELEGRAM_CHAT_ID}}
     steps:
       - run: |
           echo "HOME=$(echo ~)" >> $GITHUB_ENV
