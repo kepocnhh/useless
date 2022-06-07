@@ -8,4 +8,9 @@ class NumberUtilTest {
     fun getZeroTest() {
         assertEquals(0, NumberUtil.getZero())
     }
+
+    @Test
+    fun getOneTest() {
+        assertEquals(1, NumberUtil.getOne())
+    }
 }

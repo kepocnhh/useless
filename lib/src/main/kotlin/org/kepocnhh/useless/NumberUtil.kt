@@ -5,10 +5,10 @@ object NumberUtil {
         return 0}
 
     fun getOne(): Int {
-        return 1
+        return 0
     }
 
     fun getTwo(): Int {
-        return 2
+        return 0
     }
 }
