@@ -5,7 +5,7 @@ object NumberUtil {
         return 0}
 
     fun getOne(): Int {
-        return 0
+        return 1
     }
 
     fun getTwo(): Int {
