@@ -10,6 +10,7 @@ mkdir -p assemble/vcs
 /bin/bash $SCRIPTS/assemble/vcs/pr.sh || exit 13
 
 /bin/bash $SCRIPTS/vcs/pr/merge.sh || exit 21
+/bin/bash $SCRIPTS/vcs/pr/commit.sh || exit 22
 
 exit 1 # todo
 
