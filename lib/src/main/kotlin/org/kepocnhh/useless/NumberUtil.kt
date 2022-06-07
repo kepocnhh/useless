@@ -6,7 +6,8 @@ object NumberUtil {
     private const val TWO = 2
 
     fun getZero(): Int {
-        return ZERO}
+        return ZERO
+    }
 
     fun getOne(): Int {
         return ONE
