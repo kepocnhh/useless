@@ -25,14 +25,19 @@ if test $CODE -ne 0; then
  echo "Git config failed!"; exit 41
 fi
 
+git -C $REPOSITORY fetch origin $GIT_BRANCH_DST; CODE=$?
+if test $CODE -ne 0; then
+ echo "Git fetch \"$GIT_BRANCH_DST\" error!"; exit 42
+fi
+
 git -C $REPOSITORY checkout $GIT_BRANCH_DST; CODE=$?
 if test $CODE -ne 0; then
- echo "Git checkout to \"$GIT_BRANCH_DST\" error!"; exit 42
+ echo "Git checkout to \"$GIT_BRANCH_DST\" error!"; exit 43
 fi
 
 git -C $REPOSITORY merge --no-ff --no-commit $GIT_COMMIT_SRC; CODE=$?
 if test $CODE -ne 0; then
- echo "Git merge ${GIT_COMMIT_SRC::7} -> \"$GIT_BRANCH_DST\" failed!"; exit 43
+ echo "Git merge ${GIT_COMMIT_SRC::7} -> \"$GIT_BRANCH_DST\" failed!"; exit 44
 fi
 
 exit 0
