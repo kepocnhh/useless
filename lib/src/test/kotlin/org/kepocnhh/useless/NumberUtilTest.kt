@@ -5,7 +5,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Assert.assertFalse
 
-class NumberUtilTest {
+internal class NumberUtilTest {
     @Test
     fun getZeroTest() {
         assertEquals(0, NumberUtil.getZero())
