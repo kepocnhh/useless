@@ -1,14 +1,22 @@
 package org.kepocnhh.useless
 
 object NumberUtil {
+    private const val ZERO = 0
+    private const val ONE = 1
+    private const val TWO = 2
+
     fun getZero(): Int {
-        return 0}
+        return ZERO}
 
     fun getOne(): Int {
-        return 1
+        return ONE
     }
 
     fun getTwo(): Int {
-        return 2
+        return TWO
+    }
+
+    fun isZero(value: Int): Boolean {
+        return value == ZERO
     }
 }

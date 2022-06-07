@@ -2,8 +2,10 @@ package org.kepocnhh.useless
 
 import org.junit.Test
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
+import org.junit.Assert.assertFalse
 
-class NumberUtilTest {
+internal class NumberUtilTest {
     @Test
     fun getZeroTest() {
         assertEquals(0, NumberUtil.getZero())
@@ -17,5 +19,11 @@ class NumberUtilTest {
     @Test
     fun getTwoTest() {
         assertEquals(2, NumberUtil.getTwo())
+    }
+
+    @Test
+    fun isZeroTest() {
+        assertTrue(NumberUtil.isZero(0))
+        assertFalse(NumberUtil.isZero(1))
     }
 }
