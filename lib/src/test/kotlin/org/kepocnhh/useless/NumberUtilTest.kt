@@ -13,4 +13,9 @@ class NumberUtilTest {
     fun getOneTest() {
         assertEquals(1, NumberUtil.getOne())
     }
+
+    @Test
+    fun getTwoTest() {
+        assertEquals(2, NumberUtil.getTwo())
+    }
 }

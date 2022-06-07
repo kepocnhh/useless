@@ -8,7 +8,7 @@
   "TEST_COVERAGE": {
     "report": "lib/build/reports/jacoco/test/html",
     "path": "test/coverage",
-    "title": "Unit test coverage",
+    "title": "Test coverage",
     "task": "lib:jacocoTestReport",
     "verification": {
       "task": "lib:jacocoTestCoverageVerification"

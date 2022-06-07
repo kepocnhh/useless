@@ -9,6 +9,6 @@ object NumberUtil {
     }
 
     fun getTwo(): Int {
-        return 0
+        return 2
     }
 }
