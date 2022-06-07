@@ -12,7 +12,7 @@ WORKER_VCS_EMAIL="$(jq -Mcer ".vcs_email|$REQUIRE_FILLED_STRING" assemble/vcs/wo
 GIT_BRANCH_DST="$(jq -Mcer ".base.ref|$REQUIRE_FILLED_STRING" assemble/vcs/pr${PR_NUMBER}.json)"
 GIT_COMMIT_SRC="$(jq -Mcer ".head.sha|$REQUIRE_FILLED_STRING" assemble/vcs/pr${PR_NUMBER}.json)"
 
-for it in WORKER_NAME WORKER_EMAIL GIT_BRANCH_DST GIT_COMMIT_SRC; do
+for it in WORKER_NAME WORKER_VCS_EMAIL GIT_BRANCH_DST GIT_COMMIT_SRC; do
  if test -z "${!it}"; then echo "$it is empty!"; exit 12; fi; done
 
 REPOSITORY=repository
