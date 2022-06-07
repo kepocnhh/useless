@@ -23,6 +23,9 @@ if test $CODE -ne 0; then
   /bin/bash $SCRIPTS/workflow/verify/on_failed.sh || exit 1 # todo
  exit 31
 fi
-exit 1 # todo
+
+/bin/bash $SCRIPTS/workflow/verify/on_success.sh || exit 41
+
+echo "Workflow verify finish."
 
 exit 0
