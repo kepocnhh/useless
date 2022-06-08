@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "VCS release..."
+echo "GitHub release..."
 
 exit 1 # todo
 

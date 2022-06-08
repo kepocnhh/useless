@@ -11,15 +11,18 @@ VERSION_NAME="$(jq -Mcer ".version.name|$REQUIRE_FILLED_STRING" assemble/project
 for it in REPOSITORY_NAME; do
  if test -z "${!it}"; then echo "$it is empty!"; exit 11; fi; done
 
-ARTIFACT="${REPOSITORY_NAME}-${VERSION_NAME}-UNSTABLE"
+ARTIFACT="${REPOSITORY_NAME}-${VERSION_NAME}-UNSTABLE.jar"
 
 CODE=0
 gradle -p "$REPOSITORY" lib:assembleUnstableJar; CODE=$?
 if test $CODE -ne 0; then
- echo "Assemble \"$ARTIFACT\" jar error $CODE!"; exit 12
+ echo "Assemble \"$ARTIFACT\" error $CODE!"; exit 12
 fi
 
-test -f $REPOSITORY/lib/build/libs/$ARTIFACT || exit 13
+if [[ ! -f $REPOSITORY/lib/build/libs/$ARTIFACT ]]; then
+ echo "The file \"$REPOSITORY/lib/build/libs/$ARTIFACT\" does not exists!"
+ exit 13
+fi
 
 rm assemble/project/artifact/$ARTIFACT
 mkdir -p assemble/project/artifact
