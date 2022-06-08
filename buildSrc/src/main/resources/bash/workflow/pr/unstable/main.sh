@@ -15,10 +15,12 @@ mkdir -p assemble/project
 /bin/bash $SCRIPTS/project/prepare.sh || exit 31
 /bin/bash $SCRIPTS/assemble/project/common.sh || exit 32
 
-/bin/bash $SCRIPTS/vcs/check/version.sh || exit 41
+/bin/bash $SCRIPTS/workflow/pr/unstable/check/version.sh || exit 41
 
 /bin/bash $SCRIPTS/vcs/pr/commit.sh || exit 22
 
-exit 1 # todo
+/bin/bash $SCRIPTS/workflow/pr/unstable/on_success.sh || exit 51
+
+echo "Workflow pull request unstable finish."
 
 exit 0
