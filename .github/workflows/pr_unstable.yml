@@ -1,0 +1,51 @@
+name: Pull request to unstable
+
+on:
+  pull_request:
+    types: [opened, reopened]
+    branches:
+      - unstable
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    env:
+      REPOSITORY_OWNER: kepocnhh
+      REPOSITORY_NAME: useless
+      VCS_PAT: ${{secrets.PERSONAL_ACCESS_TOKEN}}
+      TELEGRAM_BOT_ID: ${{secrets.TELEGRAM_BOT_ID}}
+      TELEGRAM_BOT_TOKEN: ${{secrets.TELEGRAM_BOT_TOKEN}}
+      TELEGRAM_CHAT_ID: ${{secrets.TELEGRAM_CHAT_ID}}
+    steps:
+      - run: |
+          echo "HOME=$(echo ~)" >> $GITHUB_ENV
+          echo "BUILD_PATH=$HOME/$(jq -Mcer .workflow $GITHUB_EVENT_PATH | base64)/$GITHUB_RUN_NUMBER/$GITHUB_RUN_ID" >> $GITHUB_ENV
+          if test "$VCS_PAT" == ""; then exit 1; fi
+      - run: |
+          mkdir -p $BUILD_PATH/repository
+          git -C $BUILD_PATH/repository init
+          git -C $BUILD_PATH/repository remote add origin https://$VCS_PAT@github.com/$REPOSITORY_OWNER/$REPOSITORY_NAME.git
+          git -C $BUILD_PATH/repository fetch --depth=1 origin $(jq -Mcer .pull_request.head.sha $GITHUB_EVENT_PATH)
+          git -C $BUILD_PATH/repository checkout FETCH_HEAD
+      - run: |
+          docker build --no-cache \
+           --build-arg REPOSITORY_OWNER=$REPOSITORY_OWNER \
+           --build-arg REPOSITORY_NAME=$REPOSITORY_NAME \
+           --build-arg VCS_PAT=$VCS_PAT \
+           --build-arg GIT_BRANCH_SRC=$(jq -r .pull_request.head.ref $GITHUB_EVENT_PATH) \
+           -t image.pr.unstable:$GITHUB_RUN_NUMBER \
+           -f $BUILD_PATH/repository/buildSrc/src/main/resources/docker/pr/unstable.docker $BUILD_PATH/repository
+          echo "REPOSITORY_OWNER=$REPOSITORY_OWNER" > /tmp/build${GITHUB_RUN_NUMBER}.env
+          echo "REPOSITORY_NAME=$REPOSITORY_NAME" >> /tmp/build${GITHUB_RUN_NUMBER}.env
+          echo "GITHUB_RUN_NUMBER=$GITHUB_RUN_NUMBER" >> /tmp/build${GITHUB_RUN_NUMBER}.env
+          echo "GITHUB_RUN_ID=$GITHUB_RUN_ID" >> /tmp/build${GITHUB_RUN_NUMBER}.env
+          echo "TELEGRAM_BOT_ID=$TELEGRAM_BOT_ID" >> /tmp/build${GITHUB_RUN_NUMBER}.env
+          echo "TELEGRAM_CHAT_ID=$TELEGRAM_CHAT_ID" >> /tmp/build${GITHUB_RUN_NUMBER}.env
+          echo "PR_NUMBER=$(jq -Mcer .pull_request.number $GITHUB_EVENT_PATH)" >> /tmp/build${GITHUB_RUN_NUMBER}.env
+          docker run --rm \
+           -e VCS_PAT=$VCS_PAT \
+           -e TELEGRAM_BOT_TOKEN=$TELEGRAM_BOT_TOKEN \
+           -e VCS_DOMAIN="https://api.github.com" \
+           --env-file /tmp/build${GITHUB_RUN_NUMBER}.env \
+           --name container.pr.unstable image.pr.unstable:$GITHUB_RUN_NUMBER \
+           /bin/bash repository/buildSrc/src/main/resources/bash/workflow/pr/unstable/main.sh
