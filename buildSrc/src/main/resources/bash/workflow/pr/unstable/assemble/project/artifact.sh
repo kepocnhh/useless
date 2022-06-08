@@ -20,8 +20,7 @@ if test $CODE -ne 0; then
 fi
 
 if [[ ! -f $REPOSITORY/lib/build/libs/$ARTIFACT ]]; then
- echo "The file \"$REPOSITORY/lib/build/libs/$ARTIFACT\" does not exists!"
- exit 13
+ echo "The file \"$REPOSITORY/lib/build/libs/$ARTIFACT\" does not exists!"; exit 13
 fi
 
 rm assemble/project/artifact/$ARTIFACT
