@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "Assemble project artifact..."
+echo "VCS release..."
 
 exit 1 # todo
 

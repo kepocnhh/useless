@@ -10,7 +10,7 @@ tasks.getByName<JavaCompile>("compileJava") {
     targetCompatibility = Version.jvmTarget
 }
 
-tasks.getByName<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>("compileKotlin") {
+val compileKotlinTask = tasks.getByName<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>("compileKotlin") {
     kotlinOptions.jvmTarget = Version.jvmTarget
 }
 
@@ -82,5 +82,15 @@ kotlin.sourceSets.forEach {
             }
         }
         classpath.setFrom(detektTask.classpath)
+    }
+}
+
+"unstable".also { variant ->
+    val tag = "${Version.name}-${variant.toUpperCase()}"
+    task<Jar>("assemble${variant.capitalize()}Jar") {
+        dependsOn(compileKotlinTask)
+        archiveBaseName.set(Repository.name)
+        archiveVersion.set(tag)
+        from(compileKotlinTask.destinationDirectory.asFileTree)
     }
 }
