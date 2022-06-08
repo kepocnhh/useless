@@ -21,7 +21,7 @@ REPOSITORY=repository
 
 CODE=0
 MESSAGE="Merge ${GIT_COMMIT_SRC::7} -> ${GIT_COMMIT_DST::7} by CI build #${GITHUB_RUN_NUMBER}."
-git commit -m "$MESSAGE"; CODE=$?
+git -C $REPOSITORY commit -m "$MESSAGE"; CODE=$?
 if test $CODE -ne 0; then
  echo "Git commit failed!"; exit 41
 fi
