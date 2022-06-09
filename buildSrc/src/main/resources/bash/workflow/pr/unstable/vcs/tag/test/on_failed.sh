@@ -28,6 +28,8 @@ AUTHOR_HTML_URL_SRC="$(jq -Mcer ".html_url|$REQUIRE_FILLED_STRING" assemble/vcs/
 GIT_COMMIT_DST="$(jq -Mcer ".base.sha|$REQUIRE_FILLED_STRING" assemble/vcs/pr${PR_NUMBER}.json)" || exit 1 # todo
 AUTHOR_NAME_DST="$(jq -Mcer ".name|$REQUIRE_FILLED_STRING" assemble/vcs/commit/author.dst.json)" || exit 1 # todo
 AUTHOR_HTML_URL_DST="$(jq -Mcer ".html_url|$REQUIRE_FILLED_STRING" assemble/vcs/commit/author.dst.json)" || exit 1 # todo
+WORKER_NAME="$(jq -Mcer ".name|$REQUIRE_FILLED_STRING" assemble/vcs/worker.json)" || exit 1 # todo
+WORKER_HTML_URL="$(jq -Mcer ".html_url|$REQUIRE_FILLED_STRING" assemble/vcs/worker.json)" || exit 1 # todo
 
 MESSAGE="CI build [#$GITHUB_RUN_NUMBER]($REPOSITORY_URL/actions/runs/$GITHUB_RUN_ID) failed!
 
