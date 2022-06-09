@@ -16,9 +16,10 @@ mkdir -p assemble/project
 /bin/bash $SCRIPTS/project/prepare.sh || exit 31
 /bin/bash $SCRIPTS/assemble/project/common.sh || exit 32
 
-/bin/bash $SCRIPTS/workflow/pr/unstable/vcs/push.sh || exit 41
-/bin/bash $SCRIPTS/workflow/pr/unstable/vcs/release.sh || exit 42
-/bin/bash $SCRIPTS/vcs/pr/check_state.sh "closed" || exit 43
+/bin/bash $SCRIPTS/workflow/pr/unstable/vcs/tag/test.sh || exit 41
+/bin/bash $SCRIPTS/workflow/pr/unstable/vcs/push.sh || exit 42
+/bin/bash $SCRIPTS/workflow/pr/unstable/vcs/release.sh || exit 43
+/bin/bash $SCRIPTS/vcs/pr/check_state.sh "closed" || exit 44
 
 /bin/bash $SCRIPTS/workflow/pr/unstable/on_success.sh || exit 91
 
