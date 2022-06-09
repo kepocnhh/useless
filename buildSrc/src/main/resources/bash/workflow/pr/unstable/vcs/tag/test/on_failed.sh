@@ -22,8 +22,25 @@ MESSAGE="Closed by CI build [#$GITHUB_RUN_NUMBER]($REPOSITORY_URL/actions/runs/$
 
 /bin/bash $SCRIPTS/vcs/pr/comment.sh "$MESSAGE" || exit 31 # todo
 
-# todo message telegram
+GIT_COMMIT_SRC="$(jq -Mcer ".head.sha|$REQUIRE_FILLED_STRING" assemble/vcs/pr${PR_NUMBER}.json)" || exit 1 # todo
+AUTHOR_NAME_SRC="$(jq -Mcer ".name|$REQUIRE_FILLED_STRING" assemble/vcs/commit/author.src.json)" || exit 1 # todo
+AUTHOR_HTML_URL_SRC="$(jq -Mcer ".html_url|$REQUIRE_FILLED_STRING" assemble/vcs/commit/author.src.json)" || exit 1 # todo
+GIT_COMMIT_DST="$(jq -Mcer ".base.sha|$REQUIRE_FILLED_STRING" assemble/vcs/pr${PR_NUMBER}.json)" || exit 1 # todo
+AUTHOR_NAME_DST="$(jq -Mcer ".name|$REQUIRE_FILLED_STRING" assemble/vcs/commit/author.dst.json)" || exit 1 # todo
+AUTHOR_HTML_URL_DST="$(jq -Mcer ".html_url|$REQUIRE_FILLED_STRING" assemble/vcs/commit/author.dst.json)" || exit 1 # todo
 
-exit 3 # todo
+MESSAGE="CI build [#$GITHUB_RUN_NUMBER]($REPOSITORY_URL/actions/runs/$GITHUB_RUN_ID) failed!
+
+[$REPOSITORY_OWNER](https://github.com/$REPOSITORY_OWNER) / [$REPOSITORY_NAME]($REPOSITORY_URL)
+
+\`x\`
+\`|\\\`
+\`| *\` [${GIT_COMMIT_SRC::7}]($REPOSITORY_URL/commit/$GIT_COMMIT_SRC) by [$AUTHOR_NAME_SRC]($AUTHOR_HTML_URL_SRC)
+\`*\` [${GIT_COMMIT_DST::7}]($REPOSITORY_URL/commit/$GIT_COMMIT_DST) by [$AUTHOR_NAME_DST]($AUTHOR_HTML_URL_DST)
+
+The pull request [#$PR_NUMBER]($REPOSITORY_URL/pull/$PR_NUMBER) closed by [$WORKER_NAME]($WORKER_HTML_URL)
+ - tag \"$TAG\" test  failed!"
+
+/bin/bash $SCRIPTS/notification/telegram/send_message.sh "$MESSAGE" || exit 32
 
 exit 0
