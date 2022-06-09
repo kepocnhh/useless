@@ -8,6 +8,7 @@ fi
 
 COMMENT="$1"
 COMMENT=${COMMENT//$'\n'/"\n"}
+COMMENT=${COMMENT//"\""/"\\\""}
 
 for it in VCS_DOMAIN VCS_PAT REPOSITORY_OWNER REPOSITORY_NAME PR_NUMBER COMMENT; do
  if test -z "${!it}"; then echo "$it is empty!"; exit 21; fi; done
