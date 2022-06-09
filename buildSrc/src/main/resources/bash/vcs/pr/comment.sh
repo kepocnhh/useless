@@ -7,14 +7,15 @@ if test $# -ne 1; then
 fi
 
 COMMENT="$1"
+COMMENT=${COMMENT//$'\n'/"\n"}
 
-for it in VCS_DOMAIN VCS_PAT REPOSITORY_OWNER REPOSITORY_NAME PR_NUMBER; do
+for it in VCS_DOMAIN VCS_PAT REPOSITORY_OWNER REPOSITORY_NAME PR_NUMBER COMMENT; do
  if test -z "${!it}"; then echo "$it is empty!"; exit 21; fi; done
 
 BODY="$(echo "{}" | jq -Mc ".body=\"$COMMENT\"")"
 
 CODE=0
-CODE=$(curl -w %{http_code} -o assemble/github/release.json -X POST \
+CODE=$(curl -w %{http_code} -o /dev/null -X POST \
  "$VCS_DOMAIN/repos/$REPOSITORY_OWNER/$REPOSITORY_NAME/issues/$PR_NUMBER/comments" \
  -H "Authorization: token $VCS_PAT" \
  -d "$BODY")
