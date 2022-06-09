@@ -35,13 +35,12 @@ MESSAGE="CI build [#$GITHUB_RUN_NUMBER]($REPOSITORY_URL/actions/runs/$GITHUB_RUN
 
 [$REPOSITORY_OWNER](https://github.com/$REPOSITORY_OWNER) / [$REPOSITORY_NAME]($REPOSITORY_URL)
 
-\`x\`
+\`x <-- \` tag \`$TAG\` test  failed!
 \`|\\\`
 \`| *\` [${GIT_COMMIT_SRC::7}]($REPOSITORY_URL/commit/$GIT_COMMIT_SRC) by [$AUTHOR_NAME_SRC]($AUTHOR_HTML_URL_SRC)
 \`*\` [${GIT_COMMIT_DST::7}]($REPOSITORY_URL/commit/$GIT_COMMIT_DST) by [$AUTHOR_NAME_DST]($AUTHOR_HTML_URL_DST)
 
-The pull request [#$PR_NUMBER]($REPOSITORY_URL/pull/$PR_NUMBER) closed by [$WORKER_NAME]($WORKER_HTML_URL)
- - tag \`$TAG\` test  failed!"
+The pull request [#$PR_NUMBER]($REPOSITORY_URL/pull/$PR_NUMBER) closed by [$WORKER_NAME]($WORKER_HTML_URL)"
 
 /bin/bash $SCRIPTS/notification/telegram/send_message.sh "$MESSAGE" || exit 32
 
