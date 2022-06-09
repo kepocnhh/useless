@@ -9,12 +9,6 @@ SCRIPTS=repository/buildSrc/src/main/resources/bash
 VERSION_NAME="$(jq -Mcer ".version.name|$REQUIRE_FILLED_STRING" assemble/project/common.json)" || exit 1 # todo
 TAG="${VERSION_NAME}-UNSTABLE"
 
-/bin/bash $SCRIPTS/vcs/tag/test.sh "$TAG" || exit 11
-/bin/bash $SCRIPTS/vcs/pr/commit.sh || exit 12
-/bin/bash $SCRIPTS/workflow/pr/unstable/assemble/project/artifact.sh || exit 13
-/bin/bash $SCRIPTS/vcs/push.sh || exit 14
-/bin/bash $SCRIPTS/assemble/vcs/commit.sh || exit 15
-
 GIT_COMMIT_SHA="$(jq -Mcer ".sha|$REQUIRE_FILLED_STRING" assemble/vcs/commit.json)" || exit 1 # todo
 BODY="$(echo "{}" | jq -Mc ".name=\"$TAG\"")"
 BODY="$(echo "$BODY" | jq -Mc ".tag_name=\"$TAG\"")"
@@ -31,7 +25,5 @@ ARTIFACT="$(echo "$ARTIFACT" | jq -Mc ".label=\"$ARTIFACT_NAME\"")"
 ARTIFACT="$(echo "$ARTIFACT" | jq -Mc ".path=\"assemble/project/artifact/$ARTIFACT_NAME\"")"
 ARTIFACTS="$(echo "[]" | jq -Mc ".+=[$ARTIFACT]")"
 /bin/bash $SCRIPTS/github/release/upload/artifact.sh "$ARTIFACTS" || exit 17
-
-exit 2 # todo
 
 exit 0
