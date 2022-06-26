@@ -2,16 +2,15 @@
 
 echo "VCS pull request check state..."
 
-REQUIRE_FILLED_STRING="select((.!=null)and(type==\"string\")and(.!=\"\"))"
+SCRIPTS=repository/buildSrc/src/main/resources/bash
+
+. $SCRIPTS/util/require VCS_DOMAIN REPOSITORY_OWNER REPOSITORY_NAME PR_NUMBER
 
 if test $# -ne 1; then
  echo "Script needs for 1 argument but actual $#"; exit 11
 fi
 
-EXPECTED="$1"
-
-for it in VCS_DOMAIN REPOSITORY_OWNER REPOSITORY_NAME PR_NUMBER; do
- if test -z "${!it}"; then echo "$it is empty!"; exit 11; fi; done
+EXPECTED_STATE="$1"
 
 CODE=0
 CODE=$(curl -w %{http_code} -o assemble/vcs/pr${PR_NUMBER}.json \
@@ -22,10 +21,9 @@ if test $CODE -ne 200; then
  exit 21
 fi
 
-PR_STATE="$(jq -Mcer ".state|$REQUIRE_FILLED_STRING" assemble/vcs/pr${PR_NUMBER}.json)" || exit 1 # todo
+ACTUAL_STATE=$($SCRIPTS/util/jqx -sfs assemble/vcs/pr${PR_NUMBER}.json .state) \
+ || . $SCRIPTS/util/throw $? "$(cat /tmp/jqx.o)"
 
-if test "$EXPECTED" != "$PR_STATE"; then
- echo "State of pull request #$PR_NUMBER is not \"$EXPECTED\", but it is \"$PR_STATE\"!"; exit 31
-fi
+. $SCRIPTS/util/assert -eq EXPECTED_STATE ACTUAL_STATE
 
 exit 0
