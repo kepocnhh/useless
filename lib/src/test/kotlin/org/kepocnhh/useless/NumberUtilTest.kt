@@ -26,4 +26,9 @@ internal class NumberUtilTest {
         assertTrue(NumberUtil.isZero(0))
         assertFalse(NumberUtil.isZero(1))
     }
+
+    @Test
+    fun isOneTest() {
+        TODO()
+    }
 }
