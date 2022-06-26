@@ -43,7 +43,7 @@ jobs:
           TELEGRAM_BOT_ID: ${{secrets.TELEGRAM_BOT_ID}}
           TELEGRAM_BOT_TOKEN: ${{secrets.TELEGRAM_BOT_TOKEN}}
           TELEGRAM_CHAT_ID: ${{secrets.TELEGRAM_CHAT_ID}}
-      - run: |
+        run: |
           echo "REPOSITORY_OWNER=$REPOSITORY_OWNER" > $BUILD_PATH/env
           echo "REPOSITORY_NAME=$REPOSITORY_NAME" >> $BUILD_PATH/env
           echo "GITHUB_RUN_NUMBER=$GITHUB_RUN_NUMBER" >> $BUILD_PATH/env
