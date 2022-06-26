@@ -2,17 +2,16 @@
 
 echo "Workflow verify on success start..."
 
-REQUIRE_FILLED_STRING="select((.!=null)and(type==\"string\")and(.!=\"\"))"
+SCRIPTS=repository/buildSrc/src/main/resources/bash
 
-GIT_COMMIT_SHA="$(jq -Mcer ".sha|$REQUIRE_FILLED_STRING" assemble/vcs/commit.json)"
-AUTHOR_NAME="$(jq -Mcer ".name|$REQUIRE_FILLED_STRING" assemble/vcs/commit/author.json)"
-AUTHOR_URL="$(jq -Mcer ".html_url|$REQUIRE_FILLED_STRING" assemble/vcs/commit/author.json)"
+. $SCRIPTS/util/require REPOSITORY_OWNER REPOSITORY_NAME GITHUB_RUN_NUMBER GITHUB_RUN_ID
 
-for it in REPOSITORY_OWNER REPOSITORY_NAME \
- GITHUB_RUN_NUMBER GITHUB_RUN_ID \
- GIT_COMMIT_SHA \
- AUTHOR_NAME AUTHOR_URL; do
- if test -z "${!it}"; then echo "$it is empty!"; exit 21; fi; done
+GIT_COMMIT_SHA=$($SCRIPTS/util/jqx -sfs assemble/vcs/commit.json .sha) \
+ || . $SCRIPTS/util/throw $? "$(cat /tmp/jqx.o)"
+AUTHOR_NAME=$($SCRIPTS/util/jqx -sfs assemble/vcs/commit/author.json .name) \
+ || . $SCRIPTS/util/throw $? "$(cat /tmp/jqx.o)"
+AUTHOR_HTML_URL=$($SCRIPTS/util/jqx -sfs assemble/vcs/commit/author.json .html_url) \
+ || . $SCRIPTS/util/throw $? "$(cat /tmp/jqx.o)"
 
 REPOSITORY_URL=https://github.com/$REPOSITORY_OWNER/$REPOSITORY_NAME
 
@@ -20,9 +19,7 @@ MESSAGE="CI build [#$GITHUB_RUN_NUMBER]($REPOSITORY_URL/actions/runs/$GITHUB_RUN
 
 [$REPOSITORY_OWNER](https://github.com/$REPOSITORY_OWNER) / [$REPOSITORY_NAME]($REPOSITORY_URL)
 
- - source [${GIT_COMMIT_SHA::7}]($REPOSITORY_URL/commit/$GIT_COMMIT_SHA) by [$AUTHOR_NAME]($AUTHOR_URL)
-
-Verified %F0%9F%91%8D"
+The commit [${GIT_COMMIT_SHA::7}]($REPOSITORY_URL/commit/$GIT_COMMIT_SHA) by [$AUTHOR_NAME]($AUTHOR_HTML_URL) is verified %F0%9F%91%8D"
 
 /bin/bash repository/buildSrc/src/main/resources/bash/notification/telegram/send_message.sh "$MESSAGE" || exit 11
 

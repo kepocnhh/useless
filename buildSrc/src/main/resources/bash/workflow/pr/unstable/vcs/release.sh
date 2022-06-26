@@ -2,14 +2,16 @@
 
 echo "Workflow pull request unstable VCS release..."
 
-REQUIRE_FILLED_STRING="select((.!=null)and(type==\"string\")and(.!=\"\"))"
-
 SCRIPTS=repository/buildSrc/src/main/resources/bash
 
-VERSION_NAME="$(jq -Mcer ".version.name|$REQUIRE_FILLED_STRING" assemble/project/common.json)" || exit 1 # todo
+. $SCRIPTS/util/require REPOSITORY_NAME BUILD_VARIANT
+
+VERSION_NAME=$($SCRIPTS/util/jqx -sfs assemble/project/common.json .version.name) \
+ || . $SCRIPTS/util/throw $? "$(cat /tmp/jqx.o)"
 TAG="${VERSION_NAME}-UNSTABLE"
 
-GIT_COMMIT_SHA="$(jq -Mcer ".sha|$REQUIRE_FILLED_STRING" assemble/vcs/commit.json)" || exit 1 # todo
+GIT_COMMIT_SHA=$($SCRIPTS/util/jqx -sfs assemble/vcs/commit.json .sha) \
+ || . $SCRIPTS/util/throw $? "$(cat /tmp/jqx.o)"
 BODY="$(echo "{}" | jq -Mc ".name=\"$TAG\"")"
 BODY="$(echo "$BODY" | jq -Mc ".tag_name=\"$TAG\"")"
 BODY="$(echo "$BODY" | jq -Mc ".target_commitish=\"$GIT_COMMIT_SHA\"")"

@@ -2,12 +2,12 @@
 
 echo "Project prepare..."
 
-CODE=0
+SCRIPTS=repository/buildSrc/src/main/resources/bash
 
-gradle -p repository clean; CODE=$?
-if test $CODE -ne 0; then
- echo "Gradle clean error $CODE!"
- exit 11
-fi
+gradle -p repository clean \
+ || . $SCRIPTS/util/throw 11 "Gradle clean error!"
+
+gradle -p repository lib:compileKotlin \
+ || . $SCRIPTS/util/throw 12 "Gradle compile error!"
 
 exit 0

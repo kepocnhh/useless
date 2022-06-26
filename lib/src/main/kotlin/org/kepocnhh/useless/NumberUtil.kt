@@ -20,4 +20,8 @@ object NumberUtil {
     fun isZero(value: Int): Boolean {
         return value == ZERO
     }
+
+    fun isOne(value: Int): Boolean {
+        return value == ONE
+    }
 }

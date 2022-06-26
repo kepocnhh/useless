@@ -14,8 +14,9 @@ for it in TELEGRAM_BOT_ID TELEGRAM_BOT_TOKEN TELEGRAM_CHAT_ID MESSAGE; do
 MESSAGE=${MESSAGE//"#"/"%23"}
 MESSAGE=${MESSAGE//$'\n'/"%0A"}
 MESSAGE=${MESSAGE//$'\r'/""}
+MESSAGE=${MESSAGE//"_"/"\_"}
 
-CODE=$(curl -w %{http_code} -G -o /dev/null \
+CODE=$(curl -w %{http_code} -o /tmp/telegram.o \
  "https://api.telegram.org/bot${TELEGRAM_BOT_ID}:${TELEGRAM_BOT_TOKEN}/sendMessage" \
  -d chat_id=$TELEGRAM_CHAT_ID \
  -d text="$MESSAGE" \
@@ -23,6 +24,7 @@ CODE=$(curl -w %{http_code} -G -o /dev/null \
 
 if test $CODE -ne 200; then
  echo "Send message error!"
+ cat /tmp/telegram.o
  echo "Request error with response code $CODE!"
  exit 31
 fi

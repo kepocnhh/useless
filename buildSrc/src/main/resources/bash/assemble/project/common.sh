@@ -2,32 +2,23 @@
 
 echo "Assemble project common..."
 
-for it in REPOSITORY_OWNER; do
- if test -z "${!it}"; then echo "$it is empty!"; exit 11; fi; done
+SCRIPTS=repository/buildSrc/src/main/resources/bash
 
-CODE=0
+. $SCRIPTS/util/require REPOSITORY_OWNER REPOSITORY_NAME
 
-gradle -p repository saveCommonInfo; CODE=$?
-if test $CODE -ne 0; then
- echo "Save common info error $CODE!"
- exit 11
-fi
+gradle -p repository saveCommonInfo \
+ || . $SCRIPTS/util/throw 11 "Save common info error $?!"
 
-if [ ! -f "repository/build/common.json" ]; then
- echo "File $(pwd)/repository/build/common.json does not exist!"
- exit 21
-fi
+JSON_FILE=$(pwd)/repository/build/common.json
+. $SCRIPTS/util/assert -f $JSON_FILE
+cp $JSON_FILE assemble/project/common.json
 
-cp repository/build/common.json assemble/project/common.json
+ACTUAL_OWNER=$($SCRIPTS/util/jqx -sfs assemble/project/common.json .repository.owner) \
+ || . $SCRIPTS/util/throw $? "$(cat /tmp/jqx.o)"
+. $SCRIPTS/util/assert -eq REPOSITORY_OWNER ACTUAL_OWNER
 
-ACTUAL="$(jq -r .repository.owner assemble/project/common.json)"
-if test -z "$ACTUAL"; then
- echo "Actual repository owner is empty!"
- exit 41
-fi
-if test "$REPOSITORY_OWNER" != "$ACTUAL"; then
- echo "Actual repository owner is $ACTUAL, but expected is $REPOSITORY_OWNER!"
- exit 42
-fi
+ACTUAL_NAME=$($SCRIPTS/util/jqx -sfs assemble/project/common.json .repository.name) \
+ || . $SCRIPTS/util/throw $? "$(cat /tmp/jqx.o)"
+. $SCRIPTS/util/assert -eq REPOSITORY_NAME ACTUAL_NAME
 
 exit 0

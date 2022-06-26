@@ -2,42 +2,33 @@
 
 echo "VCS pull request merge..."
 
-REQUIRE_FILLED_STRING="select((.!=null)and(type==\"string\")and(.!=\"\"))"
+SCRIPTS=repository/buildSrc/src/main/resources/bash
 
-for it in PR_NUMBER; do
- if test -z "${!it}"; then echo "$it is empty!"; exit 11; fi; done
+. $SCRIPTS/util/require PR_NUMBER
 
-WORKER_NAME="$(jq -Mcer ".name|$REQUIRE_FILLED_STRING" assemble/vcs/worker.json)"
-WORKER_VCS_EMAIL="$(jq -Mcer ".vcs_email|$REQUIRE_FILLED_STRING" assemble/vcs/worker.json)"
-GIT_BRANCH_DST="$(jq -Mcer ".base.ref|$REQUIRE_FILLED_STRING" assemble/vcs/pr${PR_NUMBER}.json)"
-GIT_COMMIT_SRC="$(jq -Mcer ".head.sha|$REQUIRE_FILLED_STRING" assemble/vcs/pr${PR_NUMBER}.json)"
-
-for it in WORKER_NAME WORKER_VCS_EMAIL GIT_BRANCH_DST GIT_COMMIT_SRC; do
- if test -z "${!it}"; then echo "$it is empty!"; exit 12; fi; done
+WORKER_NAME=$($SCRIPTS/util/jqx -sfs assemble/vcs/worker.json .name) \
+ || . $SCRIPTS/util/throw $? "$(cat /tmp/jqx.o)"
+WORKER_VCS_EMAIL=$($SCRIPTS/util/jqx -sfs assemble/vcs/worker.json .vcs_email) \
+ || . $SCRIPTS/util/throw $? "$(cat /tmp/jqx.o)"
+GIT_BRANCH_DST=$($SCRIPTS/util/jqx -sfs assemble/vcs/pr${PR_NUMBER}.json .base.ref) \
+ || . $SCRIPTS/util/throw $? "$(cat /tmp/jqx.o)"
+GIT_COMMIT_SRC=$($SCRIPTS/util/jqx -sfs assemble/vcs/pr${PR_NUMBER}.json .head.sha) \
+ || . $SCRIPTS/util/throw $? "$(cat /tmp/jqx.o)"
 
 REPOSITORY=repository
-[[ -d "$REPOSITORY" ]] || exit 1 # todo
+. $SCRIPTS/util/assert -d $REPOSITORY
 
-CODE=0
-git -C $REPOSITORY config user.name "$WORKER_NAME" && \
- git -C $REPOSITORY config user.email "$WORKER_VCS_EMAIL"; CODE=$?
-if test $CODE -ne 0; then
- echo "Git config failed!"; exit 41
-fi
+git -C $REPOSITORY config user.name "$WORKER_NAME" \
+ && git -C $REPOSITORY config user.email "$WORKER_VCS_EMAIL" \
+ || . $SCRIPTS/util/throw 41 "Git config error!"
 
-git -C $REPOSITORY fetch origin $GIT_BRANCH_DST; CODE=$?
-if test $CODE -ne 0; then
- echo "Git fetch \"$GIT_BRANCH_DST\" error!"; exit 42
-fi
+git -C $REPOSITORY fetch origin $GIT_BRANCH_DST \
+ || . $SCRIPTS/util/throw 42 "Git fetch \"$GIT_BRANCH_DST\" error!"
 
-git -C $REPOSITORY checkout $GIT_BRANCH_DST; CODE=$?
-if test $CODE -ne 0; then
- echo "Git checkout to \"$GIT_BRANCH_DST\" error!"; exit 43
-fi
+git -C $REPOSITORY checkout $GIT_BRANCH_DST \
+ || . $SCRIPTS/util/throw 43 "Git checkout to \"$GIT_BRANCH_DST\" error!"
 
-git -C $REPOSITORY merge --no-ff --no-commit $GIT_COMMIT_SRC; CODE=$?
-if test $CODE -ne 0; then
- echo "Git merge ${GIT_COMMIT_SRC::7} -> \"$GIT_BRANCH_DST\" failed!"; exit 44
-fi
+git -C $REPOSITORY merge --no-ff --no-commit $GIT_COMMIT_SRC \
+ || . $SCRIPTS/util/throw 44 "Git merge ${GIT_COMMIT_SRC::7} -> \"$GIT_BRANCH_DST\" error!"
 
 exit 0

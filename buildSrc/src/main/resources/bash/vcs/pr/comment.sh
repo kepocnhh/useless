@@ -2,6 +2,8 @@
 
 echo "VCS pull request comment..."
 
+SCRIPTS=repository/buildSrc/src/main/resources/bash
+
 if test $# -ne 1; then
  echo "Script needs for 1 argument but actual $#"; exit 11
 fi
@@ -10,8 +12,7 @@ COMMENT="$1"
 COMMENT=${COMMENT//$'\n'/"\n"}
 COMMENT=${COMMENT//"\""/"\\\""}
 
-for it in VCS_DOMAIN VCS_PAT REPOSITORY_OWNER REPOSITORY_NAME PR_NUMBER COMMENT; do
- if test -z "${!it}"; then echo "$it is empty!"; exit 21; fi; done
+. $SCRIPTS/util/require VCS_DOMAIN VCS_PAT REPOSITORY_OWNER REPOSITORY_NAME PR_NUMBER COMMENT
 
 BODY="$(echo "{}" | jq -Mc ".body=\"$COMMENT\"")"
 
