@@ -2,9 +2,10 @@
 
 echo "Project verify..."
 
-CODE=0
+SCRIPTS=repository/buildSrc/src/main/resources/bash
 
-gradle -p repository verifyService || exit 1 # todo
+gradle -p repository verifyService \
+ || . $SCRIPTS/util/throw 11 "Gradle verify service error!"
 
 ENVIRONMENT=repository/buildSrc/src/main/resources/json/verify.json
 ARRAY=($(jq -Mcer "keys|.[]" $ENVIRONMENT))
@@ -12,24 +13,28 @@ SIZE=${#ARRAY[*]}
 for ((i=0; i<SIZE; i++)); do
  TYPE="${ARRAY[i]}"
  TASK="$(jq -Mcer ".${TYPE}.task" $ENVIRONMENT)" || exit 1 # todo
- gradle -p repository "$TASK"; CODE=$?
- if test $CODE -ne 0; then
-  echo "gradle $TASK error"; exit $((100+i))
- fi
+ gradle -p repository "$TASK" \
+  || . $SCRIPTS/util/throw $((100+i)) "Gradle $TASK error!"
 done
+
+CODE=0
 
 ENVIRONMENT=repository/buildSrc/src/main/resources/json/unit_test.json
 TYPE="UNIT_TEST"
-gradle -p repository "$(jq -Mcer ".${TYPE}.task" $ENVIRONMENT)"; CODE=$?
+TASK=$($SCRIPTS/util/jqx -sfs $ENVIRONMENT ".${TYPE}.task") \
+ || . $SCRIPTS/util/throw $? "$(cat /tmp/jqx.o)"
+gradle -p repository "$TASK"; CODE=$?
 if test $CODE -ne 0; then
- echo "Unit test failed!"; exit $((200+i))
+ echo "Unit test error!"; exit 121
 else
  TYPE="TEST_COVERAGE"
- gradle -p repository "$(jq -Mcer ".${TYPE}.task" $ENVIRONMENT)" || exit 1 # todo
- gradle -p repository "$(jq -Mcer ".${TYPE}.verification.task" $ENVIRONMENT)"; CODE=$?
- if test $CODE -ne 0; then
-  echo "Unit test coverage verification failed!"; exit $((200+i))
- fi
+ TASK=$($SCRIPTS/util/jqx -sfs $ENVIRONMENT ".${TYPE}.task") \
+  || . $SCRIPTS/util/throw $? "$(cat /tmp/jqx.o)"
+ gradle -p repository "$TASK" || exit 1 # todo
+ TASK=$($SCRIPTS/util/jqx -sfs $ENVIRONMENT ".${TYPE}.verification.task") \
+  || . $SCRIPTS/util/throw $? "$(cat /tmp/jqx.o)"
+ gradle -p repository "$TASK" \
+  || . $SCRIPTS/util/throw 122 "Test coverage verification error!"
 fi
 
 exit 0

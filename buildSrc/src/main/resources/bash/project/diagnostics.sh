@@ -2,7 +2,7 @@
 
 echo "Project diagnostics..."
 
-REQUIRE_FILLED_STRING="select((.!=null)and(type==\"string\")and(.!=\"\"))"
+SCRIPTS=repository/buildSrc/src/main/resources/bash
 
 echo "{}" > diagnostics/summary.json
 
@@ -13,39 +13,61 @@ ARRAY=($(jq -Mcer "keys|.[]" $ENVIRONMENT))
 SIZE=${#ARRAY[*]}
 for ((i=0; i<SIZE; i++)); do
  TYPE="${ARRAY[i]}"
- TASK="$(jq -Mcer ".${TYPE}.task" $ENVIRONMENT)" || exit 1 # todo
+ TASK=$($SCRIPTS/util/jqx -sfs $ENVIRONMENT ".${TYPE}.task") \
+  || . $SCRIPTS/util/throw $? "$(cat /tmp/jqx.o)"
  gradle -p repository "$TASK"; CODE=$?
  if test $CODE -ne 0; then
-  RELATIVE="$(jq -Mcer ".${TYPE}.path|$REQUIRE_FILLED_STRING" $ENVIRONMENT)" || exit 1 # todo
-  TITLE="$(jq -Mcer ".${TYPE}.title|$REQUIRE_FILLED_STRING" $ENVIRONMENT)" || exit 1 # todo
+  RELATIVE=$($SCRIPTS/util/jqx -sfs $ENVIRONMENT ".${TYPE}.path") \
+   || . $SCRIPTS/util/throw $? "$(cat /tmp/jqx.o)"
+  TITLE=$($SCRIPTS/util/jqx -sfs $ENVIRONMENT ".${TYPE}.title") \
+   || . $SCRIPTS/util/throw $? "$(cat /tmp/jqx.o)"
   mkdir -p diagnostics/report/$RELATIVE
-  cp -r repository/$(jq -Mcer ".${TYPE}.report" $ENVIRONMENT)/* diagnostics/report/$RELATIVE || exit 1 # todo
-  echo "$(jq -cM ".$TYPE.path=\"$RELATIVE\"" diagnostics/summary.json)" > diagnostics/summary.json || exit $((100+i))
-  echo "$(jq -cM ".$TYPE.title=\"$TITLE\"" diagnostics/summary.json)" > diagnostics/summary.json || exit $((100+i))
+  REPORT=$($SCRIPTS/util/jqx -sfs $ENVIRONMENT ".${TYPE}.report") \
+   || . $SCRIPTS/util/throw $? "$(cat /tmp/jqx.o)"
+  cp -r repository/$REPORT/* diagnostics/report/$RELATIVE || exit 1 # todo
+  echo "$(jq -Mc ".$TYPE.path=\"$RELATIVE\"" diagnostics/summary.json)" > diagnostics/summary.json \
+   && echo "$(jq -Mc ".$TYPE.title=\"$TITLE\"" diagnostics/summary.json)" > diagnostics/summary.json \
+   || exit $((100+i))
  fi
 done
 
 ENVIRONMENT=repository/buildSrc/src/main/resources/json/unit_test.json
 TYPE="UNIT_TEST"
-gradle -p repository "$(jq -Mcer ".${TYPE}.task" $ENVIRONMENT)"; CODE=$?
+TASK=$($SCRIPTS/util/jqx -sfs $ENVIRONMENT ".${TYPE}.task") \
+ || . $SCRIPTS/util/throw $? "$(cat /tmp/jqx.o)"
+gradle -p repository "$TASK"; CODE=$?
 if test $CODE -ne 0; then
- RELATIVE="$(jq -Mcer ".${TYPE}.path|$REQUIRE_FILLED_STRING" $ENVIRONMENT)" || exit 1 # todo
- TITLE="$(jq -Mcer ".${TYPE}.title|$REQUIRE_FILLED_STRING" $ENVIRONMENT)" || exit 1 # todo
+ RELATIVE=$($SCRIPTS/util/jqx -sfs $ENVIRONMENT ".${TYPE}.path") \
+  || . $SCRIPTS/util/throw $? "$(cat /tmp/jqx.o)"
+ TITLE=$($SCRIPTS/util/jqx -sfs $ENVIRONMENT ".${TYPE}.title") \
+  || . $SCRIPTS/util/throw $? "$(cat /tmp/jqx.o)"
  mkdir -p diagnostics/report/$RELATIVE
- cp -r repository/$(jq -Mcer ".${TYPE}.report" $ENVIRONMENT)/* diagnostics/report/$RELATIVE || exit 1 # todo
- echo "$(jq -cM ".$TYPE.path=\"$RELATIVE\"" diagnostics/summary.json)" > diagnostics/summary.json || exit 121
- echo "$(jq -cM ".$TYPE.title=\"$TITLE\"" diagnostics/summary.json)" > diagnostics/summary.json || exit 121
+ REPORT=$($SCRIPTS/util/jqx -sfs $ENVIRONMENT ".${TYPE}.report") \
+  || . $SCRIPTS/util/throw $? "$(cat /tmp/jqx.o)"
+ cp -r repository/$REPORT/* diagnostics/report/$RELATIVE || exit 1 # todo
+ echo "$(jq -Mc ".$TYPE.path=\"$RELATIVE\"" diagnostics/summary.json)" > diagnostics/summary.json \
+  && echo "$(jq -Mc ".$TYPE.title=\"$TITLE\"" diagnostics/summary.json)" > diagnostics/summary.json \
+  || exit 121
 else
  TYPE="TEST_COVERAGE"
- gradle -p repository "$(jq -Mcer ".${TYPE}.task|$REQUIRE_FILLED_STRING" $ENVIRONMENT)" || exit 1 # todo
- gradle -p repository "$(jq -Mcer ".${TYPE}.verification.task|$REQUIRE_FILLED_STRING" $ENVIRONMENT)"; CODE=$?
+ TASK=$($SCRIPTS/util/jqx -sfs $ENVIRONMENT ".${TYPE}.task") \
+  || . $SCRIPTS/util/throw $? "$(cat /tmp/jqx.o)"
+ gradle -p repository "$TASK" || exit 1 # todo
+ TASK=$($SCRIPTS/util/jqx -sfs $ENVIRONMENT ".${TYPE}.verification.task") \
+  || . $SCRIPTS/util/throw $? "$(cat /tmp/jqx.o)"
+ gradle -p repository "$TASK"; CODE=$?
  if test $CODE -ne 0; then
-  RELATIVE="$(jq -Mcer ".${TYPE}.path|$REQUIRE_FILLED_STRING" $ENVIRONMENT)" || exit 1 # todo
-  TITLE="$(jq -Mcer ".${TYPE}.title|$REQUIRE_FILLED_STRING" $ENVIRONMENT)" || exit 1 # todo
+  RELATIVE=$($SCRIPTS/util/jqx -sfs $ENVIRONMENT ".${TYPE}.path") \
+   || . $SCRIPTS/util/throw $? "$(cat /tmp/jqx.o)"
+  TITLE=$($SCRIPTS/util/jqx -sfs $ENVIRONMENT ".${TYPE}.title") \
+   || . $SCRIPTS/util/throw $? "$(cat /tmp/jqx.o)"
   mkdir -p diagnostics/report/$RELATIVE
-  cp -r repository/$(jq -Mcer ".${TYPE}.report" $ENVIRONMENT)/* diagnostics/report/$RELATIVE || exit 1 # todo
-  echo "$(jq -cM ".$TYPE.path=\"$RELATIVE\"" diagnostics/summary.json)" > diagnostics/summary.json || exit 122
-  echo "$(jq -cM ".$TYPE.title=\"$TITLE\"" diagnostics/summary.json)" > diagnostics/summary.json || exit 122
+  REPORT=$($SCRIPTS/util/jqx -sfs $ENVIRONMENT ".${TYPE}.report") \
+   || . $SCRIPTS/util/throw $? "$(cat /tmp/jqx.o)"
+  cp -r repository/$REPORT/* diagnostics/report/$RELATIVE || exit 1 # todo
+  echo "$(jq -Mc ".$TYPE.path=\"$RELATIVE\"" diagnostics/summary.json)" > diagnostics/summary.json \
+   && echo "$(jq -Mc ".$TYPE.title=\"$TITLE\"" diagnostics/summary.json)" > diagnostics/summary.json \
+   || exit 122
  fi
 fi
 

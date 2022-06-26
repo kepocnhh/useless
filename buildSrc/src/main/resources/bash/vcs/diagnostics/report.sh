@@ -2,24 +2,24 @@
 
 echo "VCS diagnostics report..."
 
-REQUIRE_FILLED_STRING="select((.!=null)and(type==\"string\")and(.!=\"\"))"
+SCRIPTS=repository/buildSrc/src/main/resources/bash
 
-WORKER_NAME="$(jq -Mcer ".name|$REQUIRE_FILLED_STRING" assemble/vcs/worker.json)"
-WORKER_VCS_EMAIL="$(jq -Mcer ".vcs_email|$REQUIRE_FILLED_STRING" assemble/vcs/worker.json)"
+. $SCRIPTS/util/require VCS_PAT REPOSITORY_OWNER REPOSITORY_NAME GITHUB_RUN_NUMBER GITHUB_RUN_ID
 
-for it in VCS_PAT REPOSITORY_OWNER REPOSITORY_NAME \
- GITHUB_RUN_NUMBER GITHUB_RUN_ID \
- WORKER_NAME WORKER_VCS_EMAIL; do
- if test -z "${!it}"; then echo "$it is empty!"; exit 21; fi; done
+WORKER_NAME=$($SCRIPTS/util/jqx -sfs assemble/vcs/worker.json .name) \
+ || . $SCRIPTS/util/throw $? "$(cat /tmp/jqx.o)"
+WORKER_VCS_EMAIL=$($SCRIPTS/util/jqx -sfs assemble/vcs/worker.json .vcs_email) \
+ || . $SCRIPTS/util/throw $? "$(cat /tmp/jqx.o)"
 
 REPOSITORY=pages/diagnostics/report
 mkdir -p $REPOSITORY || exit 1 # todo
 
-git -C $REPOSITORY init && \
- git -C $REPOSITORY remote add origin \
-  https://$VCS_PAT@github.com/$REPOSITORY_OWNER/$REPOSITORY_NAME.git && \
- git -C $REPOSITORY fetch --depth=1 origin gh-pages && \
- git -C $REPOSITORY checkout gh-pages || exit 1 # todo
+git -C $REPOSITORY init \
+ && git -C $REPOSITORY remote add origin \
+  https://$VCS_PAT@github.com/$REPOSITORY_OWNER/$REPOSITORY_NAME.git \
+ && git -C $REPOSITORY fetch --depth=1 origin gh-pages \
+ && git -C $REPOSITORY checkout gh-pages \
+ || . $SCRIPTS/util/throw 11 "Git checkout error!"
 
 RELATIVE_PATH=$GITHUB_RUN_NUMBER/$GITHUB_RUN_ID/diagnostics/report
 mkdir -p $REPOSITORY/build/$RELATIVE_PATH || exit 1 # todo
@@ -33,24 +33,17 @@ if test "$TYPES" == "[]"; then
 fi
 COMMIT_MESSAGE="${COMMIT_MESSAGE} of ${TYPES} issues."
 
-CODE=0
-git -C $REPOSITORY config user.name "$WORKER_NAME" && \
- git -C $REPOSITORY config user.email "$WORKER_VCS_EMAIL"; CODE=$?
-if test $CODE -ne 0; then
- echo "Git config failed!"; exit 41
-fi
+git -C $REPOSITORY config user.name "$WORKER_NAME" \
+ && git -C $REPOSITORY config user.email "$WORKER_VCS_EMAIL" \
+ || . $SCRIPTS/util/throw 41 "Git config error!"
 
-git -C $REPOSITORY add --all . && \
- git -C $REPOSITORY commit -m "$COMMIT_MESSAGE" && \
- git -C $REPOSITORY tag "diagnostics/report/$GITHUB_RUN_NUMBER/$GITHUB_RUN_ID"; CODE=$?
-if test $CODE -ne 0; then
- echo "Git commit failed!"; exit 42
-fi
+git -C $REPOSITORY add --all . \
+ && git -C $REPOSITORY commit -m "$COMMIT_MESSAGE" \
+ && git -C $REPOSITORY tag "diagnostics/report/$GITHUB_RUN_NUMBER/$GITHUB_RUN_ID" \
+ || . $SCRIPTS/util/throw 42 "Git commit error!"
 
-git -C $REPOSITORY push && \
- git -C $REPOSITORY push --tag; CODE=$?
-if test $CODE -ne 0; then
- echo "Git push failed!"; exit 43
-fi
+git -C $REPOSITORY push \
+ && git -C $REPOSITORY push --tag \
+ || . $SCRIPTS/util/throw 43 "Git push error!"
 
 exit 0

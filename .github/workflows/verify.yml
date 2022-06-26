@@ -7,9 +7,6 @@ on:
         description: "GIT source name. For example [dev, wip...]."
         required: true
         default: "dev"
-      build_variant:
-        description: "Build variant name. For example [staging, snapshot...]."
-        required: true
 
 jobs:
   build:
@@ -23,7 +20,6 @@ jobs:
           echo "REPOSITORY_OWNER=$(jq -r .repository.owner.login $GITHUB_EVENT_PATH)" >> $GITHUB_ENV
           echo "REPOSITORY_NAME=$(jq -r .repository.name $GITHUB_EVENT_PATH)" >> $GITHUB_ENV
           echo "GIT_BRANCH_SRC=${{github.event.inputs.git_source}}" >> $GITHUB_ENV
-          echo "BUILD_VARIANT=${{github.event.inputs.build_variant}}" >> $GITHUB_ENV
           if test "$VCS_PAT" == ""; then exit 21; fi
       - run: |
           mkdir -p $BUILD_PATH/repository
@@ -48,7 +44,6 @@ jobs:
           echo "REPOSITORY_NAME=$REPOSITORY_NAME" >> $BUILD_PATH/env
           echo "GITHUB_RUN_NUMBER=$GITHUB_RUN_NUMBER" >> $BUILD_PATH/env
           echo "GITHUB_RUN_ID=$GITHUB_RUN_ID" >> $BUILD_PATH/env
-          echo "BUILD_VARIANT=$BUILD_VARIANT" >> $BUILD_PATH/env
           echo "TELEGRAM_BOT_ID=$TELEGRAM_BOT_ID" >> $BUILD_PATH/env
           echo "TELEGRAM_CHAT_ID=$TELEGRAM_CHAT_ID" >> $BUILD_PATH/env
           docker run --rm \
