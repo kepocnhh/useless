@@ -22,21 +22,21 @@ jobs:
       - run: |
           echo "HOME=$(echo ~)" >> $GITHUB_ENV
           echo "BUILD_PATH=$HOME/$(jq -r .workflow $GITHUB_EVENT_PATH | base64)/$GITHUB_RUN_NUMBER/$GITHUB_RUN_ID" >> $GITHUB_ENV
-          echo "GIT_SOURCE=${{github.event.inputs.git_source}}" >> $GITHUB_ENV
+          echo "GIT_BRANCH_SRC=${{github.event.inputs.git_source}}" >> $GITHUB_ENV
           echo "BUILD_VARIANT=${{github.event.inputs.build_variant}}" >> $GITHUB_ENV
           if test "$VCS_PAT" == ""; then exit 21; fi
       - run: |
           mkdir -p $BUILD_PATH/repository
           git -C $BUILD_PATH/repository init
           git -C $BUILD_PATH/repository remote add origin https://$VCS_PAT@github.com/$REPOSITORY_OWNER/$REPOSITORY_NAME.git
-          git -C $BUILD_PATH/repository fetch --depth=1 origin $GIT_SOURCE
+          git -C $BUILD_PATH/repository fetch --depth=1 origin $GIT_BRANCH_SRC
           git -C $BUILD_PATH/repository checkout FETCH_HEAD
       - run: |
           docker build --no-cache \
            --build-arg REPOSITORY_OWNER=$REPOSITORY_OWNER \
            --build-arg REPOSITORY_NAME=$REPOSITORY_NAME \
            --build-arg VCS_PAT=$VCS_PAT \
-           --build-arg GIT_SOURCE=$GIT_SOURCE \
+           --build-arg GIT_BRANCH_SRC=$GIT_BRANCH_SRC \
            -t image.verify:$GITHUB_RUN_NUMBER \
            -f $BUILD_PATH/repository/buildSrc/src/main/resources/docker/checkout.FETCH_HEAD.docker $BUILD_PATH/repository
       - env:
