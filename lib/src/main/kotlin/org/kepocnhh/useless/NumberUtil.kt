@@ -22,6 +22,6 @@ object NumberUtil {
     }
 
     fun isOne(value: Int): Boolean {
-        return value == 10
+        return value == ONE
     }
 }

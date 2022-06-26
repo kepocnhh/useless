@@ -29,5 +29,7 @@ internal class NumberUtilTest {
 
     @Test
     fun isOneTest() {
+        assertTrue(NumberUtil.isOne(1))
+        assertFalse(NumberUtil.isOne(0))
     }
 }
