@@ -44,8 +44,8 @@ jobs:
           TELEGRAM_BOT_TOKEN: ${{secrets.TELEGRAM_BOT_TOKEN}}
           TELEGRAM_CHAT_ID: ${{secrets.TELEGRAM_CHAT_ID}}
         run: |
-          /bin/bash $BUILD_PATH/repository/buildSrc/src/main/resources/bash/notification/telegram/send_message.sh "$(jq . $GITHUB_EVENT_PATH)"
-          /bin/bash $BUILD_PATH/repository/buildSrc/src/main/resources/bash/notification/telegram/send_message.sh "$(cat $GITHUB_ENV)"
+          /bin/bash $BUILD_PATH/repository/buildSrc/src/main/resources/bash/notification/telegram/send_file.sh "$GITHUB_EVENT_PATH"
+          /bin/bash $BUILD_PATH/repository/buildSrc/src/main/resources/bash/notification/telegram/send_file.sh "$GITHUB_ENV"
           exit 31
           echo "REPOSITORY_OWNER=$REPOSITORY_OWNER" > $BUILD_PATH/env
           echo "REPOSITORY_NAME=$REPOSITORY_NAME" >> $BUILD_PATH/env
