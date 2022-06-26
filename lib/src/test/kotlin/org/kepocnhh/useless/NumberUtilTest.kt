@@ -29,6 +29,5 @@ internal class NumberUtilTest {
 
     @Test
     fun isOneTest() {
-        TODO()
     }
 }
