@@ -4,7 +4,7 @@ echo "Workflow pull request unstable VCS release..."
 
 SCRIPTS=repository/buildSrc/src/main/resources/bash
 
-. $SCRIPTS/util/require REPOSITORY_NAME BUILD_VARIANT
+. $SCRIPTS/util/require REPOSITORY_NAME
 
 VERSION_NAME=$($SCRIPTS/util/jqx -sfs assemble/project/common.json .version.name) \
  || . $SCRIPTS/util/throw $? "$(cat /tmp/jqx.o)"
