@@ -1,0 +1,53 @@
+name: Pull request to staging
+
+on:
+  pull_request:
+    types: [opened, reopened]
+    branches:
+      - staging
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    env:
+      VCS_PAT: ${{secrets.PERSONAL_ACCESS_TOKEN}}
+    steps:
+      - run: |
+          echo "HOME=$(echo ~)" >> $GITHUB_ENV
+          echo "BUILD_PATH=$HOME/$(jq -Mcer .workflow $GITHUB_EVENT_PATH | base64)/$GITHUB_RUN_NUMBER/$GITHUB_RUN_ID" >> $GITHUB_ENV
+          echo "REPOSITORY_OWNER=$(jq -r .repository.owner.login $GITHUB_EVENT_PATH)" >> $GITHUB_ENV
+          echo "REPOSITORY_NAME=$(jq -r .repository.name $GITHUB_EVENT_PATH)" >> $GITHUB_ENV
+          if test "$VCS_PAT" == ""; then exit 21; fi
+      - run: |
+          mkdir -p $BUILD_PATH/repository
+          git -C $BUILD_PATH/repository init
+          git -C $BUILD_PATH/repository remote add origin https://$VCS_PAT@github.com/$REPOSITORY_OWNER/$REPOSITORY_NAME.git
+          git -C $BUILD_PATH/repository fetch --depth=1 origin $(jq -Mcer .pull_request.head.sha $GITHUB_EVENT_PATH)
+          git -C $BUILD_PATH/repository checkout FETCH_HEAD
+      - run: |
+          docker build --no-cache \
+           --build-arg REPOSITORY_OWNER=$REPOSITORY_OWNER \
+           --build-arg REPOSITORY_NAME=$REPOSITORY_NAME \
+           --build-arg VCS_PAT=$VCS_PAT \
+           --build-arg GIT_BRANCH_SRC=$(jq -r .pull_request.head.ref $GITHUB_EVENT_PATH) \
+           -t image.pr.staging:$GITHUB_RUN_NUMBER \
+           -f $BUILD_PATH/repository/buildSrc/src/main/resources/docker/checkout.GIT_BRANCH_SRC.docker $BUILD_PATH/repository
+      - env:
+          TELEGRAM_BOT_ID: ${{secrets.TELEGRAM_BOT_ID}}
+          TELEGRAM_BOT_TOKEN: ${{secrets.TELEGRAM_BOT_TOKEN}}
+          TELEGRAM_CHAT_ID: ${{secrets.TELEGRAM_CHAT_ID}}
+        run: |
+          echo "REPOSITORY_OWNER=$REPOSITORY_OWNER" > $BUILD_PATH/env
+          echo "REPOSITORY_NAME=$REPOSITORY_NAME" >> $BUILD_PATH/env
+          echo "GITHUB_RUN_NUMBER=$GITHUB_RUN_NUMBER" >> $BUILD_PATH/env
+          echo "GITHUB_RUN_ID=$GITHUB_RUN_ID" >> $BUILD_PATH/env
+          echo "TELEGRAM_BOT_ID=$TELEGRAM_BOT_ID" >> $BUILD_PATH/env
+          echo "TELEGRAM_CHAT_ID=$TELEGRAM_CHAT_ID" >> $BUILD_PATH/env
+          echo "PR_NUMBER=$(jq -Mcer .pull_request.number $GITHUB_EVENT_PATH)" >> $BUILD_PATH/env
+          docker run --rm \
+           -e VCS_PAT=$VCS_PAT \
+           -e TELEGRAM_BOT_TOKEN=$TELEGRAM_BOT_TOKEN \
+           -e VCS_DOMAIN="https://api.github.com" \
+           --env-file $BUILD_PATH/env \
+           --name container.pr.staging image.pr.staging:$GITHUB_RUN_NUMBER \
+           /bin/bash repository/buildSrc/src/main/resources/bash/workflow/pr/staging/main.sh
