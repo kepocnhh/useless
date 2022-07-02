@@ -24,6 +24,7 @@ jobs:
           git -C $BUILD_PATH/repository remote add origin https://$VCS_PAT@github.com/$REPOSITORY_OWNER/$REPOSITORY_NAME.git
           git -C $BUILD_PATH/repository fetch --depth=1 origin $(jq -Mcer .pull_request.head.sha $GITHUB_EVENT_PATH)
           git -C $BUILD_PATH/repository checkout FETCH_HEAD
+          cat "$BUILD_PATH/repository/.github/env" >> $GITHUB_ENV
       - run: |
           docker build --no-cache \
            --build-arg REPOSITORY_OWNER=$REPOSITORY_OWNER \
@@ -44,10 +45,11 @@ jobs:
           echo "TELEGRAM_BOT_ID=$TELEGRAM_BOT_ID" >> $BUILD_PATH/env
           echo "TELEGRAM_CHAT_ID=$TELEGRAM_CHAT_ID" >> $BUILD_PATH/env
           echo "PR_NUMBER=$(jq -Mcer .pull_request.number $GITHUB_EVENT_PATH)" >> $BUILD_PATH/env
+          echo "LABEL_ID_STAGING=$LABEL_ID_STAGING" >> $BUILD_PATH/env
+          echo "VCS_DOMAIN=$VCS_DOMAIN" >> $BUILD_PATH/env
           docker run --rm \
            -e VCS_PAT=$VCS_PAT \
            -e TELEGRAM_BOT_TOKEN=$TELEGRAM_BOT_TOKEN \
-           -e VCS_DOMAIN="https://api.github.com" \
            --env-file $BUILD_PATH/env \
            --name container.pr.staging image.pr.staging:$GITHUB_RUN_NUMBER \
            /bin/bash repository/buildSrc/src/main/resources/bash/workflow/pr/staging/main.sh

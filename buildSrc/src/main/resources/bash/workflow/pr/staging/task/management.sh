@@ -2,6 +2,8 @@
 
 echo "Workflow pull request staging task management..."
 
+mkdir -p assemble/github
+
 SCRIPTS=repository/buildSrc/src/main/resources/bash
 
 . $SCRIPTS/util/require PR_NUMBER
@@ -24,8 +26,7 @@ for ((i=0; i<SIZE; i++)); do
  ISSUES+=($(echo "$it" | grep -Po "$REGEX" | grep -Po "\d+"))
 done
 
-mkdir -p assemble/github
-
+/bin/bash $SCRIPTS/github/labels.sh || exit 32
 SIZE=${#ISSUES[*]}
 echo "[]" > assemble/github/fixed.json
 ISSUES=($(printf "%s\n" "${ISSUES[@]}" | sort -u))
@@ -33,6 +34,7 @@ SIZE=${#ISSUES[*]}
 for ((i=0; i<SIZE; i++)); do
  ISSUE_NUMBER="${ISSUES[$i]}"
  /bin/bash $SCRIPTS/github/issue.sh "$ISSUE_NUMBER" || exit 1 # todo
+ /bin/bash $SCRIPTS/workflow/pr/staging/task/patch.sh "$ISSUE_NUMBER" "$LABEL_ID_STAGING" || exit 1 # todo
  echo "$(jq ".+[$(cat assemble/github/issue${ISSUE_NUMBER}.json)]" assemble/github/fixed.json)" \
   > assemble/github/fixed.json || exit 1 # todo
 done
