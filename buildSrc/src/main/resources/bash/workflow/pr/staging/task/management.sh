@@ -43,16 +43,21 @@ MESSAGE="Marked as \`$LABEL_NAME_TARGET\` in \`$TAG\` by CI build [#$GITHUB_RUN_
 for ((i=0; i<SIZE; i++)); do
  ISSUE_NUMBER="${ISSUES[$i]}"
  /bin/bash $SCRIPTS/github/issue.sh "$ISSUE_NUMBER" || exit 1 # todo
+ EXISTS="$(jq ".labels|any(.id==$LABEL_ID_TARGET)" assemble/github/issue${ISSUE_NUMBER}.json)"
  /bin/bash $SCRIPTS/workflow/pr/staging/task/patch.sh "$ISSUE_NUMBER" "$LABEL_ID_TARGET" || exit 1 # todo
- /bin/bash $SCRIPTS/github/issue/comment.sh "$ISSUE_NUMBER" "$MESSAGE" || exit 1 # todo
- echo "$(jq ".+[$(cat assemble/github/issue${ISSUE_NUMBER}.json)]" assemble/github/fixed.json)" \
-  > assemble/github/fixed.json || exit 1 # todo
+ case "$EXISTS" in
+  "true") echo "The issue #$ISSUE_NUMBER is already marked as \`$LABEL_NAME_TARGET\`.";;
+  "false")
+   /bin/bash $SCRIPTS/github/issue/comment.sh "$ISSUE_NUMBER" "$MESSAGE" || exit 1 # todo
+   echo "$(jq ".+[$(cat assemble/github/issue${ISSUE_NUMBER}.json)]" assemble/github/fixed.json)" \
+    > assemble/github/fixed.json || exit 1 # todo
+  ;;
+  *) echo "The issue #$ISSUE_NUMBER label error!"; exit 1;;
+ esac
 done
 
 /bin/bash $SCRIPTS/workflow/pr/staging/release/note/html.sh "$TAG" || exit 1 # todo
 /bin/bash $SCRIPTS/vcs/release/note/report.sh "$TAG" || exit 1 # todo
-/bin/bash $SCRIPTS/workflow/pr/staging/release/note/markdown.sh "$TAG" || exit 1 # todo
-
-exit 1 # todo
+# /bin/bash $SCRIPTS/workflow/pr/staging/release/note/markdown.sh "$TAG" || exit 1 # todo
 
 exit 0

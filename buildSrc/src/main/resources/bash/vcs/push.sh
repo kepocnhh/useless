@@ -2,13 +2,12 @@
 
 echo "VCS push..."
 
-REPOSITORY=repository
-[[ -d "$REPOSITORY" ]] || exit 1 # todo
+SCRIPTS=repository/buildSrc/src/main/resources/bash
 
-CODE=0
-git -C $REPOSITORY push; CODE=$?
-if test $CODE -ne 0; then
- echo "Git push failed!"; exit 41
-fi
+REPOSITORY=repository
+. $SCRIPTS/util/assert -d $REPOSITORY
+
+git -C $REPOSITORY push \
+ || . $SCRIPTS/util/throw 41 "Git push error!"
 
 exit 0
