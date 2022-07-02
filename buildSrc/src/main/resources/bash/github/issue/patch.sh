@@ -20,6 +20,7 @@ CODE=$(curl -w %{http_code} -o assemble/github/issue${ISSUE_NUMBER}.json -X PATC
 if test $CODE -ne 200; then
  echo "GitHub patch issue #$ISSUE_NUMBER error!"
  echo "Request error with response code $CODE!"
+ jq . assemble/github/issue${ISSUE_NUMBER}.json # todo
  exit 31
 fi
 

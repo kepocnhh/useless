@@ -26,22 +26,27 @@ for ((i=0; i<SIZE; i++)); do
  ISSUES+=($(echo "$it" | grep -Po "$REGEX" | grep -Po "\d+"))
 done
 
+VERSION_NAME=$($SCRIPTS/util/jqx -sfs assemble/project/common.json .version.name) \
+ || . $SCRIPTS/util/throw $? "$(cat /tmp/jqx.o)"
+TAG="${VERSION_NAME}-STAGING"
+
 /bin/bash $SCRIPTS/github/labels.sh || exit 32
 SIZE=${#ISSUES[*]}
 echo "[]" > assemble/github/fixed.json
 ISSUES=($(printf "%s\n" "${ISSUES[@]}" | sort -u))
 SIZE=${#ISSUES[*]}
+LABEL_ID_TARGET="$LABEL_ID_STAGING"
+LABEL_TARGET="$(jq ".[]|select(.id==$LABEL_ID_TARGET)" assemble/github/labels.json)"
+LABEL_NAME_TARGET="$(echo "$LABEL_TARGET" | jq -r .name)"
 for ((i=0; i<SIZE; i++)); do
  ISSUE_NUMBER="${ISSUES[$i]}"
  /bin/bash $SCRIPTS/github/issue.sh "$ISSUE_NUMBER" || exit 1 # todo
- /bin/bash $SCRIPTS/workflow/pr/staging/task/patch.sh "$ISSUE_NUMBER" "$LABEL_ID_STAGING" || exit 1 # todo
+ /bin/bash $SCRIPTS/workflow/pr/staging/task/patch.sh "$ISSUE_NUMBER" "$LABEL_ID_TARGET" || exit 1 # todo
+ /bin/bash $SCRIPTS/github/issue/comment.sh "$ISSUE_NUMBER" "Marked as \`$LABEL_NAME_TARGET\` in \`$TAG\`." || exit 1 # todo
  echo "$(jq ".+[$(cat assemble/github/issue${ISSUE_NUMBER}.json)]" assemble/github/fixed.json)" \
   > assemble/github/fixed.json || exit 1 # todo
 done
 
-VERSION_NAME=$($SCRIPTS/util/jqx -sfs assemble/project/common.json .version.name) \
- || . $SCRIPTS/util/throw $? "$(cat /tmp/jqx.o)"
-TAG="${VERSION_NAME}-STAGING"
 /bin/bash $SCRIPTS/workflow/pr/staging/release/note/markdown.sh "$TAG" || exit 1 # todo
 /bin/bash $SCRIPTS/workflow/pr/staging/release/note/html.sh "$TAG" || exit 1 # todo
 
