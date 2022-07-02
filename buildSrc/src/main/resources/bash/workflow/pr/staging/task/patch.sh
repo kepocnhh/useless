@@ -25,12 +25,8 @@ done
 ISSUE_LABELS="$(echo "$ISSUE_LABELS" | jq ".+[$LABEL_TARGET]")"
 ISSUE="$(echo "{}" | jq ".labels=[$ISSUE_LABELS]")"
 
-exit 1 # todo
-
-/bin/bash $SCRIPTS/github/issue/patch.sh "$ISSUE_NUMBER" "$ISSUE" || exit 33
+/bin/bash $SCRIPTS/github/issue/patch.sh "$ISSUE_NUMBER" "$ISSUE" || exit 33 # todo
 MESSAGE="Test comment $(date +%s) | set label \"$LABEL_NAME_TARGET\""
-/bin/bash $SCRIPTS/github/issue/comment.sh "$ISSUE_NUMBER" "$MESSAGE" || exit 34
-
-exit 1 # todo
+/bin/bash $SCRIPTS/github/issue/comment.sh "$ISSUE_NUMBER" "$MESSAGE" || exit 34 # todo
 
 exit 0
