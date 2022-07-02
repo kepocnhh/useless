@@ -20,7 +20,7 @@ mkdir -p assemble/project
 /bin/bash $SCRIPTS/workflow/pr/staging/verify.sh || exit 51 # todo
 /bin/bash $SCRIPTS/workflow/pr/staging/task/management.sh || exit 61 # todo
 /bin/bash $SCRIPTS/workflow/pr/staging/vcs/push.sh || exit 42
-/bin/bash $SCRIPTS/vcs/pr/check_state.sh "closed" || exit 44
+/bin/bash $SCRIPTS/workflow/pr/check_state.sh "closed" || exit 44
 
 /bin/bash $SCRIPTS/workflow/pr/staging/on_success.sh || exit 91
 
