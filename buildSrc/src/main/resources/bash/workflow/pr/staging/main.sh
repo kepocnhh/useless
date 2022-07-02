@@ -18,7 +18,7 @@ mkdir -p assemble/project
 
 /bin/bash $SCRIPTS/workflow/pr/staging/vcs/tag/test.sh || exit 41
 /bin/bash $SCRIPTS/workflow/pr/staging/verify.sh || exit 51
-exit 1 # todo task manager
+/bin/bash $SCRIPTS/workflow/pr/staging/task/management.sh || exit 61 # todo
 exit 1 # todo
 #/bin/bash $SCRIPTS/workflow/pr/unstable/vcs/push.sh || exit 42
 #/bin/bash $SCRIPTS/workflow/pr/unstable/vcs/release.sh || exit 43
