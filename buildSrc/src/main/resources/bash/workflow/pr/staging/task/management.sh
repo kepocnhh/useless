@@ -15,7 +15,7 @@ GIT_COMMIT_SRC=$($SCRIPTS/util/jqx -sfs assemble/vcs/pr${PR_NUMBER}.json .head.s
 
 /bin/bash $SCRIPTS/github/commit/compare.sh "$GIT_COMMIT_DST" "$GIT_COMMIT_SRC" || exit 11 # todo
 
-FILE="assemble/github/commit/compare_${GIT_COMMIT_DST::7}_${GIT_COMMIT_SRC::7}.json"
+FILE="assemble/github/commit_compare_${GIT_COMMIT_DST::7}_${GIT_COMMIT_SRC::7}.json"
 
 SIZE=$(jq -e ".commits|length" "$FILE") || exit 1 # todo
 REGEX="(^|\s)fix iss/\K[^\W|$]+"

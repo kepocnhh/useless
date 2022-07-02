@@ -13,7 +13,7 @@ GIT_COMMIT_HEAD="$2"
 
 . $SCRIPTS/util/require VCS_DOMAIN REPOSITORY_OWNER REPOSITORY_NAME GIT_COMMIT_BASE GIT_COMMIT_HEAD
 
-FILE="assemble/github/commit/compare_${GIT_COMMIT_BASE::7}_${GIT_COMMIT_HEAD::7}.json"
+FILE="assemble/github/commit_compare_${GIT_COMMIT_BASE::7}_${GIT_COMMIT_HEAD::7}.json"
 CODE=$(curl -w %{http_code} -o "$FILE" \
  "$VCS_DOMAIN/repos/$REPOSITORY_OWNER/$REPOSITORY_NAME/compare/${GIT_COMMIT_BASE}...${GIT_COMMIT_HEAD}")
 if test $CODE -ne 200; then
