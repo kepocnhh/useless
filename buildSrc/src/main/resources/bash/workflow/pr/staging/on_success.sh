@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "Workflow pull request unstable on success start..."
+echo "Workflow pull request staging on success start..."
 
 SCRIPTS=repository/buildSrc/src/main/resources/bash
 
@@ -32,12 +32,13 @@ AUTHOR_HTML_URL_DST=$($SCRIPTS/util/jqx -sfs assemble/vcs/commit/author.dst.json
 
 VERSION_NAME=$($SCRIPTS/util/jqx -sfs assemble/project/common.json .version.name) \
  || . $SCRIPTS/util/throw $? "$(cat /tmp/jqx.o)"
-TAG="${VERSION_NAME}-UNSTABLE"
+TAG="${VERSION_NAME}-STAGING"
 
 REPOSITORY_URL=https://github.com/$REPOSITORY_OWNER/$REPOSITORY_NAME
+PAGES_URL="https://${REPOSITORY_OWNER}.github.io/$REPOSITORY_NAME"
 
 MESSAGE="Merged by CI build [#$GITHUB_RUN_NUMBER]($REPOSITORY_URL/actions/runs/$GITHUB_RUN_ID)
- - release [$TAG]($REPOSITORY_URL/releases/tag/$TAG)"
+ - release [note]($PAGES_URL/$GITHUB_RUN_NUMBER/$GITHUB_RUN_ID/release/note/index.html)"
 
 /bin/bash $SCRIPTS/vcs/pr/comment.sh "$MESSAGE" || exit 31 # todo
 
@@ -51,7 +52,7 @@ MESSAGE="CI build [#$GITHUB_RUN_NUMBER]($REPOSITORY_URL/actions/runs/$GITHUB_RUN
 \`*\` [${GIT_COMMIT_DST::7}]($REPOSITORY_URL/commit/$GIT_COMMIT_DST) by [$AUTHOR_NAME_DST]($AUTHOR_HTML_URL_DST)
 
 The pull request [#$PR_NUMBER]($REPOSITORY_URL/pull/$PR_NUMBER) merged by [$WORKER_NAME]($WORKER_HTML_URL)
- - release [$TAG]($REPOSITORY_URL/releases/tag/$TAG)"
+ - release [note]($PAGES_URL/$GITHUB_RUN_NUMBER/$GITHUB_RUN_ID/release/note/index.html)"
 
 /bin/bash $SCRIPTS/notification/telegram/send_message.sh "$MESSAGE" || exit 32
 

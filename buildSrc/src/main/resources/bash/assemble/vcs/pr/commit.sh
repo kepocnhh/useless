@@ -2,12 +2,12 @@
 
 echo "Assemble VCS pull request commit..."
 
-REQUIRE_FILLED_STRING="select((.!=null)and(type==\"string\")and(.!=\"\"))"
+SCRIPTS=repository/buildSrc/src/main/resources/bash
 
-for it in VCS_DOMAIN REPOSITORY_OWNER REPOSITORY_NAME PR_NUMBER; do
- if test -z "${!it}"; then echo "$it is empty!"; exit 11; fi; done
+. $SCRIPTS/util/require VCS_DOMAIN REPOSITORY_OWNER REPOSITORY_NAME PR_NUMBER
 
-GIT_COMMIT_SRC="$(jq -Mcer ".head.sha|$REQUIRE_FILLED_STRING" assemble/vcs/pr${PR_NUMBER}.json)" || exit 1 # todo
+GIT_COMMIT_SRC=$($SCRIPTS/util/jqx -sfs assemble/vcs/pr${PR_NUMBER}.json .head.sha) \
+ || . $SCRIPTS/util/throw $? "$(cat /tmp/jqx.o)"
 
 CODE=0
 CODE=$(curl -w %{http_code} -o assemble/vcs/commit.src.json \
@@ -18,8 +18,10 @@ if test $CODE -ne 200; then
  exit 21
 fi
 
-COMMIT_HTML_URL="$(jq -Mcer ".html_url|$REQUIRE_FILLED_STRING" assemble/vcs/commit.src.json)" || exit 1 # todo
-AUTHOR_LOGIN="$(jq -Mcer ".author.login|$REQUIRE_FILLED_STRING" assemble/vcs/commit.src.json)" || exit 1 # todo
+COMMIT_HTML_URL=$($SCRIPTS/util/jqx -sfs assemble/vcs/commit.src.json .html_url) \
+ || . $SCRIPTS/util/throw $? "$(cat /tmp/jqx.o)"
+AUTHOR_LOGIN=$($SCRIPTS/util/jqx -sfs assemble/vcs/commit.src.json .author.login) \
+ || . $SCRIPTS/util/throw $? "$(cat /tmp/jqx.o)"
 
 echo "The commit source $COMMIT_HTML_URL is ready."
 
@@ -33,11 +35,13 @@ if test $CODE -ne 200; then
  exit 22
 fi
 
-AUTHOR_HTML_URL="$(jq -Mcer ".html_url|$REQUIRE_FILLED_STRING" assemble/vcs/commit/author.src.json)" || exit 1 # todo
+AUTHOR_HTML_URL=$($SCRIPTS/util/jqx -sfs assemble/vcs/commit/author.src.json .html_url) \
+ || . $SCRIPTS/util/throw $? "$(cat /tmp/jqx.o)"
 
 echo "The author source $AUTHOR_HTML_URL is ready."
 
-GIT_COMMIT_DST="$(jq -Mcer ".base.sha|$REQUIRE_FILLED_STRING" assemble/vcs/pr${PR_NUMBER}.json)" || exit 1 # todo
+GIT_COMMIT_DST=$($SCRIPTS/util/jqx -sfs assemble/vcs/pr${PR_NUMBER}.json .base.sha) \
+ || . $SCRIPTS/util/throw $? "$(cat /tmp/jqx.o)"
 
 CODE=0
 CODE=$(curl -w %{http_code} -o assemble/vcs/commit.dst.json \
@@ -48,8 +52,10 @@ if test $CODE -ne 200; then
  exit 21
 fi
 
-COMMIT_HTML_URL="$(jq -Mcer ".html_url|$REQUIRE_FILLED_STRING" assemble/vcs/commit.dst.json)" || exit 1 # todo
-AUTHOR_LOGIN="$(jq -Mcer ".author.login|$REQUIRE_FILLED_STRING" assemble/vcs/commit.dst.json)" || exit 1 # todo
+COMMIT_HTML_URL=$($SCRIPTS/util/jqx -sfs assemble/vcs/commit.dst.json .html_url) \
+ || . $SCRIPTS/util/throw $? "$(cat /tmp/jqx.o)"
+AUTHOR_LOGIN=$($SCRIPTS/util/jqx -sfs assemble/vcs/commit.dst.json .author.login) \
+ || . $SCRIPTS/util/throw $? "$(cat /tmp/jqx.o)"
 
 echo "The commit destination $COMMIT_HTML_URL is ready."
 
@@ -63,7 +69,8 @@ if test $CODE -ne 200; then
  exit 22
 fi
 
-AUTHOR_HTML_URL="$(jq -Mcer ".html_url|$REQUIRE_FILLED_STRING" assemble/vcs/commit/author.dst.json)" || exit 1 # todo
+AUTHOR_HTML_URL=$($SCRIPTS/util/jqx -sfs assemble/vcs/commit/author.dst.json .html_url) \
+ || . $SCRIPTS/util/throw $? "$(cat /tmp/jqx.o)"
 
 echo "The author destination $AUTHOR_HTML_URL is ready."
 

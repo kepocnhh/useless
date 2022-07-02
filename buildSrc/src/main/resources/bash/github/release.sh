@@ -2,8 +2,8 @@
 
 echo "GitHub release..."
 
-REQUIRE_FILLED_STRING="select((.!=null)and(type==\"string\")and(.!=\"\"))"
-REQUIRE_INT="select((.!=null)and(type==\"number\"))"
+REQUIRE_FILLED_STRING="select((.!=null)and(type==\"string\")and(.!=\"\"))" # todo
+REQUIRE_INT="select((.!=null)and(type==\"number\"))" # todo
 
 if test $# -ne 1; then
  echo "Script needs for 1 argument but actual $#"; exit 11

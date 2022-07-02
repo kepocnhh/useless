@@ -2,10 +2,9 @@
 
 echo "Assemble VCS pull request..."
 
-REQUIRE_FILLED_STRING="select((.!=null)and(type==\"string\")and(.!=\"\"))"
+SCRIPTS=repository/buildSrc/src/main/resources/bash
 
-for it in VCS_DOMAIN REPOSITORY_OWNER REPOSITORY_NAME PR_NUMBER; do
- if test -z "${!it}"; then echo "$it is empty!"; exit 11; fi; done
+. $SCRIPTS/util/require VCS_DOMAIN REPOSITORY_OWNER REPOSITORY_NAME PR_NUMBER
 
 CODE=0
 CODE=$(curl -w %{http_code} -o assemble/vcs/pr${PR_NUMBER}.json \
@@ -16,7 +15,8 @@ if test $CODE -ne 200; then
  exit 21
 fi
 
-PR_HTML_URL="$(jq -Mcer ".html_url|$REQUIRE_FILLED_STRING" assemble/vcs/pr${PR_NUMBER}.json)" || exit 1 # todo
+PR_HTML_URL=$($SCRIPTS/util/jqx -sfs assemble/vcs/pr${PR_NUMBER}.json .html_url) \
+ || . $SCRIPTS/util/throw $? "$(cat /tmp/jqx.o)"
 
 echo "The pull request $PR_HTML_URL is ready."
 

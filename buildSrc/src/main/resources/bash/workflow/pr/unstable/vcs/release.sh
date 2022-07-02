@@ -2,18 +2,21 @@
 
 echo "Workflow pull request unstable VCS release..."
 
-REQUIRE_FILLED_STRING="select((.!=null)and(type==\"string\")and(.!=\"\"))"
-
 SCRIPTS=repository/buildSrc/src/main/resources/bash
 
-VERSION_NAME="$(jq -Mcer ".version.name|$REQUIRE_FILLED_STRING" assemble/project/common.json)" || exit 1 # todo
+. $SCRIPTS/util/require REPOSITORY_OWNER REPOSITORY_NAME GITHUB_RUN_NUMBER GITHUB_RUN_ID
+
+VERSION_NAME=$($SCRIPTS/util/jqx -sfs assemble/project/common.json .version.name) \
+ || . $SCRIPTS/util/throw $? "$(cat /tmp/jqx.o)"
 TAG="${VERSION_NAME}-UNSTABLE"
 
-GIT_COMMIT_SHA="$(jq -Mcer ".sha|$REQUIRE_FILLED_STRING" assemble/vcs/commit.json)" || exit 1 # todo
+GIT_COMMIT_SHA=$($SCRIPTS/util/jqx -sfs assemble/vcs/commit.json .sha) \
+ || . $SCRIPTS/util/throw $? "$(cat /tmp/jqx.o)"
 BODY="$(echo "{}" | jq -Mc ".name=\"$TAG\"")"
 BODY="$(echo "$BODY" | jq -Mc ".tag_name=\"$TAG\"")"
 BODY="$(echo "$BODY" | jq -Mc ".target_commitish=\"$GIT_COMMIT_SHA\"")"
-BODY="$(echo "$BODY" | jq -Mc ".body=\"CI build #$GITHUB_RUN_NUMBER\"")"
+REPOSITORY_URL=https://github.com/$REPOSITORY_OWNER/$REPOSITORY_NAME
+BODY="$(echo "$BODY" | jq -Mc ".body=\"CI build [#$GITHUB_RUN_NUMBER]($REPOSITORY_URL/actions/runs/$GITHUB_RUN_ID)\"")"
 BODY="$(echo "$BODY" | jq -Mc ".draft=false")"
 BODY="$(echo "$BODY" | jq -Mc ".prerelease=true")"
 mkdir -p assemble/github

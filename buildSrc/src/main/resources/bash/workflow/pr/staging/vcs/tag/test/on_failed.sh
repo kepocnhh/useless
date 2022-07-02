@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "Workflow pull request unstable VCS tag test on failed..."
+echo "Workflow pull request staging VCS tag test on failed..."
 
 SCRIPTS=repository/buildSrc/src/main/resources/bash
 
@@ -11,7 +11,7 @@ SCRIPTS=repository/buildSrc/src/main/resources/bash
 
 VERSION_NAME=$($SCRIPTS/util/jqx -sfs assemble/project/common.json .version.name) \
  || . $SCRIPTS/util/throw $? "$(cat /tmp/jqx.o)"
-TAG="${VERSION_NAME}-UNSTABLE"
+TAG="${VERSION_NAME}-STAGING"
 
 REPOSITORY_URL=https://github.com/$REPOSITORY_OWNER/$REPOSITORY_NAME
 
