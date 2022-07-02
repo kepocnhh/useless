@@ -57,7 +57,7 @@ for ((i=0; i<SIZE; i++)); do
 done
 
 /bin/bash $SCRIPTS/workflow/pr/staging/release/note/html.sh "$TAG" || exit 1 # todo
-/bin/bash $SCRIPTS/vcs/release/note/report.sh "$TAG" || exit 1 # todo
+/bin/bash $SCRIPTS/vcs/release/note.sh "$TAG" || exit 1 # todo
 # /bin/bash $SCRIPTS/workflow/pr/staging/release/note/markdown.sh "$TAG" || exit 1 # todo
 
 exit 0

@@ -36,9 +36,10 @@ TAG="${VERSION_NAME}-STAGING"
 
 REPOSITORY_URL=https://github.com/$REPOSITORY_OWNER/$REPOSITORY_NAME
 PAGES_URL="https://${REPOSITORY_OWNER}.github.io/$REPOSITORY_NAME"
+RELEASE_NOTE_URL="$PAGES_URL/build/$GITHUB_RUN_NUMBER/$GITHUB_RUN_ID/release/note/index.html"
 
 MESSAGE="Merged by CI build [#$GITHUB_RUN_NUMBER]($REPOSITORY_URL/actions/runs/$GITHUB_RUN_ID)
- - release [note]($PAGES_URL/$GITHUB_RUN_NUMBER/$GITHUB_RUN_ID/release/note/index.html)"
+ - release [note]($RELEASE_NOTE_URL)"
 
 /bin/bash $SCRIPTS/vcs/pr/comment.sh "$MESSAGE" || exit 31 # todo
 
@@ -52,7 +53,7 @@ MESSAGE="CI build [#$GITHUB_RUN_NUMBER]($REPOSITORY_URL/actions/runs/$GITHUB_RUN
 \`*\` [${GIT_COMMIT_DST::7}]($REPOSITORY_URL/commit/$GIT_COMMIT_DST) by [$AUTHOR_NAME_DST]($AUTHOR_HTML_URL_DST)
 
 The pull request [#$PR_NUMBER]($REPOSITORY_URL/pull/$PR_NUMBER) merged by [$WORKER_NAME]($WORKER_HTML_URL)
- - release [note]($PAGES_URL/$GITHUB_RUN_NUMBER/$GITHUB_RUN_ID/release/note/index.html)"
+ - release [note]($RELEASE_NOTE_URL)"
 
 /bin/bash $SCRIPTS/notification/telegram/send_message.sh "$MESSAGE" || exit 32
 

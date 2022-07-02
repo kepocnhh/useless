@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "VCS release note report..."
+echo "VCS release note..."
 
 if test $# -ne 1; then
  echo "Script needs for 1 argument but actual $#"; exit 11
