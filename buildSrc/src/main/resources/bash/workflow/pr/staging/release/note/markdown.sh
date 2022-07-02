@@ -12,14 +12,14 @@ SCRIPTS=repository/buildSrc/src/main/resources/bash
 
 . $SCRIPTS/util/require TAG
 
-RELEASE_NOTE="Release note \`$TAG\`"
+RELEASE_NOTE="# Release note \`$TAG\`"
 SIZE=$(jq -e "length" assemble/github/fixed.json) || exit 1 # todo
 if test $SIZE -eq 0; then
  RELEASE_NOTE="$RELEASE_NOTE
  - not a single issue has been resolved"
 else
  RELEASE_NOTE="$RELEASE_NOTE
-Fixed:"
+### Fixed:"
  FILE="assemble/github/fixed.json"
  for ((i=0; i<SIZE; i++)); do
   ISSUE_NUMBER=$($SCRIPTS/util/jqx -si "$FILE" ".[$i].number") \

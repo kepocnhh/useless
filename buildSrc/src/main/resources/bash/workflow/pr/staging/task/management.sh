@@ -6,7 +6,7 @@ mkdir -p assemble/github
 
 SCRIPTS=repository/buildSrc/src/main/resources/bash
 
-. $SCRIPTS/util/require PR_NUMBER
+. $SCRIPTS/util/require REPOSITORY_OWNER REPOSITORY_NAME GITHUB_RUN_NUMBER GITHUB_RUN_ID PR_NUMBER
 
 GIT_COMMIT_DST=$($SCRIPTS/util/jqx -sfs assemble/vcs/pr${PR_NUMBER}.json .base.sha) \
  || . $SCRIPTS/util/throw $? "$(cat /tmp/jqx.o)"
@@ -38,20 +38,20 @@ SIZE=${#ISSUES[*]}
 LABEL_ID_TARGET="$LABEL_ID_STAGING"
 LABEL_TARGET="$(jq ".[]|select(.id==$LABEL_ID_TARGET)" assemble/github/labels.json)"
 LABEL_NAME_TARGET="$(echo "$LABEL_TARGET" | jq -r .name)"
+REPOSITORY_URL=https://github.com/$REPOSITORY_OWNER/$REPOSITORY_NAME
+MESSAGE="Marked as \`$LABEL_NAME_TARGET\` in \`$TAG\` by CI build [#$GITHUB_RUN_NUMBER]($REPOSITORY_URL/actions/runs/$GITHUB_RUN_ID)."
 for ((i=0; i<SIZE; i++)); do
  ISSUE_NUMBER="${ISSUES[$i]}"
  /bin/bash $SCRIPTS/github/issue.sh "$ISSUE_NUMBER" || exit 1 # todo
  /bin/bash $SCRIPTS/workflow/pr/staging/task/patch.sh "$ISSUE_NUMBER" "$LABEL_ID_TARGET" || exit 1 # todo
- /bin/bash $SCRIPTS/github/issue/comment.sh "$ISSUE_NUMBER" "Marked as \`$LABEL_NAME_TARGET\` in \`$TAG\`." || exit 1 # todo
+ /bin/bash $SCRIPTS/github/issue/comment.sh "$ISSUE_NUMBER" "$MESSAGE" || exit 1 # todo
  echo "$(jq ".+[$(cat assemble/github/issue${ISSUE_NUMBER}.json)]" assemble/github/fixed.json)" \
   > assemble/github/fixed.json || exit 1 # todo
 done
 
-/bin/bash $SCRIPTS/workflow/pr/staging/release/note/markdown.sh "$TAG" || exit 1 # todo
 /bin/bash $SCRIPTS/workflow/pr/staging/release/note/html.sh "$TAG" || exit 1 # todo
-
-cat assemble/github/release_note.md
-cat assemble/github/release_note.html
+/bin/bash $SCRIPTS/vcs/release/note/report.sh "$TAG" || exit 1 # todo
+/bin/bash $SCRIPTS/workflow/pr/staging/release/note/markdown.sh "$TAG" || exit 1 # todo
 
 exit 1 # todo
 
