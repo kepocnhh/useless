@@ -13,6 +13,9 @@ mkdir -p assemble/project
 /bin/bash $SCRIPTS/project/prepare.sh || exit 21
 /bin/bash $SCRIPTS/assemble/project/common.sh || exit 22
 
+/bin/bash $SCRIPTS/project/verify/pre.sh \
+ || . $SCRIPTS/util/throw 21 "Pre verify unexpected error!"
+
 CODE=0
 
 JSON_PATH=repository/buildSrc/src/main/resources/json
