@@ -12,7 +12,7 @@ WORKER_VCS_EMAIL=$($SCRIPTS/util/jqx -sfs assemble/vcs/worker.json .vcs_email) \
  || . $SCRIPTS/util/throw $? "$(cat /tmp/jqx.o)"
 
 REPOSITORY=pages/diagnostics/report
-mkdir -p $REPOSITORY || exit 1 # todo
+. $SCRIPTS/util/assert -d $REPOSITORY
 
 git -C $REPOSITORY init \
  && git -C $REPOSITORY remote add origin \
