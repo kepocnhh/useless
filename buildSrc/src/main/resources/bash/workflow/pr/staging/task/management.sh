@@ -44,9 +44,7 @@ TAG_URL="$REPOSITORY_URL/releases/tag/$TAG"
 BUILD_URL="$REPOSITORY_URL/actions/runs/$GITHUB_RUN_ID"
 MESSAGE="Marked as \`$LABEL_NAME_TARGET\` in [$TAG]($TAG_URL) by CI build [#$GITHUB_RUN_NUMBER]($BUILD_URL)."
 for ((i=0; i<SIZE; i++)); do
- ISSUE_NUMBER="${ISSUES[$i]}"
- /bin/bash $SCRIPTS/workflow/pr/staging/task/fix.sh "$ISSUE_NUMBER" "$MESSAGE" || exit 1 # todo
- /bin/bash $SCRIPTS/workflow/pr/task/patch.sh "$ISSUE_NUMBER" "$LABEL_ID_TARGET" || exit 1 # todo
+ /bin/bash $SCRIPTS/workflow/pr/staging/task/fix.sh "${ISSUES[$i]}" "$MESSAGE" || exit 1 # todo
 done
 
 /bin/bash $SCRIPTS/workflow/pr/release/note/html.sh "$TAG" || exit 1 # todo

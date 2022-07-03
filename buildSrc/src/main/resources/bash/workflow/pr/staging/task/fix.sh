@@ -11,10 +11,7 @@ fi
 ISSUE_NUMBER="$1"
 MESSAGE="$2"
 
-. $SCRIPTS/util/require ISSUE_NUMBER MESSAGE
-
-LABEL_TARGET="$(jq ".[]|select(.id==$LABEL_ID_STAGING)" assemble/github/labels.json)"
-LABEL_NAME_TARGET="$(echo "$LABEL_TARGET" | jq -r .name)"
+. $SCRIPTS/util/require ISSUE_NUMBER MESSAGE LABEL_ID_STAGING LABEL_ID_SNAPSHOT
 
 /bin/bash $SCRIPTS/github/issue.sh "$ISSUE_NUMBER" || exit 1 # todo
 
@@ -24,10 +21,8 @@ LABEL_NAME="$(echo "$(jq ".[]|select(.id==$LABEL_ID)" assemble/github/labels.jso
 if test "$IS_READY_FOR_TEST" == "true"; then
  echo "The issue #$ISSUE_NUMBER is already marked as \"$LABEL_NAME\"."
  exit 0
-fi
-if test "$IS_READY_FOR_TEST" != "false"; then
- echo "The issue #$ISSUE_NUMBER label \"$LABEL_NAME\" error!"
- exit 2
+elif test "$IS_READY_FOR_TEST" != "false"; then
+ echo "The issue #$ISSUE_NUMBER label \"$LABEL_NAME\" error!"; exit 2
 fi
 
 LABEL_ID=$LABEL_ID_SNAPSHOT
@@ -36,25 +31,21 @@ LABEL_NAME="$(echo "$(jq ".[]|select(.id==$LABEL_ID)" assemble/github/labels.jso
 if test "$IS_TESTED" == "true"; then
  echo "The issue #$ISSUE_NUMBER is already marked as \"$LABEL_NAME\"."
  exit 0
-fi
-if test "$IS_TESTED" != "false"; then
- echo "The issue #$ISSUE_NUMBER label \"$LABEL_NAME\" error!"
- exit 2
+elif test "$IS_TESTED" != "false"; then
+ echo "The issue #$ISSUE_NUMBER label \"$LABEL_NAME\" error!"; exit 2
 fi
 
 ISSUE_STATE=$($SCRIPTS/util/jqx -sfs assemble/github/issue${ISSUE_NUMBER}.json .state) \
  || . $SCRIPTS/util/throw $? "$(cat /tmp/jqx.o)"
 if test "$ISSUE_STATE" == "closed"; then
- echo "The issue #$ISSUE_NUMBER is closed."
- exit 0
-fi
-if test "$IS_TESTED" != "open"; then
- echo "The issue #$ISSUE_NUMBER state error!"
- exit 2
+ echo "The issue #$ISSUE_NUMBER is closed."; exit 0
+elif test "$ISSUE_STATE" != "open"; then
+ echo "The issue #$ISSUE_NUMBER state error!"; exit 2
 fi
 
 /bin/bash $SCRIPTS/github/issue/comment.sh "$ISSUE_NUMBER" "$MESSAGE" || exit 1 # todo
 echo "$(jq ".+[$(cat assemble/github/issue${ISSUE_NUMBER}.json)]" assemble/github/fixed.json)" \
  > assemble/github/fixed.json || exit 1 # todo
+/bin/bash $SCRIPTS/workflow/pr/task/patch.sh "$ISSUE_NUMBER" "$LABEL_ID_STAGING" || exit 1 # todo
 
 exit 0
