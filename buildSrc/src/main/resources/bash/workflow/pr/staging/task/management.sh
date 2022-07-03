@@ -39,25 +39,41 @@ LABEL_ID_TARGET="$LABEL_ID_STAGING"
 LABEL_TARGET="$(jq ".[]|select(.id==$LABEL_ID_TARGET)" assemble/github/labels.json)"
 LABEL_NAME_TARGET="$(echo "$LABEL_TARGET" | jq -r .name)"
 REPOSITORY_URL=https://github.com/$REPOSITORY_OWNER/$REPOSITORY_NAME
-MESSAGE="Marked as \`$LABEL_NAME_TARGET\` in \`$TAG\` by CI build [#$GITHUB_RUN_NUMBER]($REPOSITORY_URL/actions/runs/$GITHUB_RUN_ID)."
+TAG_URL="$REPOSITORY_URL/releases/tag/$TAG"
+BUILD_URL="$REPOSITORY_URL/actions/runs/$GITHUB_RUN_ID"
+MESSAGE="Marked as \`$LABEL_NAME_TARGET\` in [$TAG]($TAG_URL) by CI build [#$GITHUB_RUN_NUMBER]($BUILD_URL)."
 for ((i=0; i<SIZE; i++)); do
  ISSUE_NUMBER="${ISSUES[$i]}"
  /bin/bash $SCRIPTS/github/issue.sh "$ISSUE_NUMBER" || exit 1 # todo
- EXISTS="$(jq ".labels|any(.id==$LABEL_ID_TARGET)" assemble/github/issue${ISSUE_NUMBER}.json)"
+ IS_READY_FOR_TEST="$(jq ".labels|any(.id==$LABEL_ID_TARGET)" assemble/github/issue${ISSUE_NUMBER}.json)"
+ IS_TESTED="$(jq ".labels|any(.id==$LABEL_ID_SNAPSHOT)" assemble/github/issue${ISSUE_NUMBER}.json)"
+ ISSUE_STATE=$($SCRIPTS/util/jqx -sfs assemble/github/issue${ISSUE_NUMBER}.json .state) \
+  || . $SCRIPTS/util/throw $? "$(cat /tmp/jqx.o)"
+ if test "$IS_READY_FOR_TEST" == "true"; then
+  echo "The issue #$ISSUE_NUMBER is already marked as \`$LABEL_NAME_TARGET\`."
+ elif test "$IS_READY_FOR_TEST" == "false"; then
+  if test "$IS_TESTED" == "true"; then
+   echo "The issue #$ISSUE_NUMBER is already marked as \`$LABEL_ID_SNAPSHOT\`."
+  elif test "$IS_TESTED" == "false"; then
+   if test "$ISSUE_STATE" == "closed"; then
+    echo "The issue #$ISSUE_NUMBER is closed."
+   elif test "$ISSUE_STATE" == "open"; then
+    /bin/bash $SCRIPTS/github/issue/comment.sh "$ISSUE_NUMBER" "$MESSAGE" || exit 1 # todo
+    echo "$(jq ".+[$(cat assemble/github/issue${ISSUE_NUMBER}.json)]" assemble/github/fixed.json)" \
+     > assemble/github/fixed.json || exit 1 # todo
+   else
+    echo "The issue #$ISSUE_NUMBER state error!"; exit 1 # todo
+   fi
+  else
+   echo "The issue #$ISSUE_NUMBER label \"$LABEL_ID_SNAPSHOT\" error!"; exit 1 # todo
+  fi
+ else
+  echo "The issue #$ISSUE_NUMBER label \"$LABEL_ID_TARGET\" error!"; exit 1 # todo
+ fi
  /bin/bash $SCRIPTS/workflow/pr/staging/task/patch.sh "$ISSUE_NUMBER" "$LABEL_ID_TARGET" || exit 1 # todo
- case "$EXISTS" in
-  "true") echo "The issue #$ISSUE_NUMBER is already marked as \`$LABEL_NAME_TARGET\`.";;
-  "false")
-   /bin/bash $SCRIPTS/github/issue/comment.sh "$ISSUE_NUMBER" "$MESSAGE" || exit 1 # todo
-   echo "$(jq ".+[$(cat assemble/github/issue${ISSUE_NUMBER}.json)]" assemble/github/fixed.json)" \
-    > assemble/github/fixed.json || exit 1 # todo
-  ;;
-  *) echo "The issue #$ISSUE_NUMBER label error!"; exit 1;;
- esac
 done
 
 /bin/bash $SCRIPTS/workflow/pr/staging/release/note/html.sh "$TAG" || exit 1 # todo
 /bin/bash $SCRIPTS/vcs/release/note.sh "$TAG" || exit 1 # todo
-# /bin/bash $SCRIPTS/workflow/pr/staging/release/note/markdown.sh "$TAG" || exit 1 # todo
 
 exit 0

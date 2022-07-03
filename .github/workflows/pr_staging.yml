@@ -46,6 +46,7 @@ jobs:
           echo "TELEGRAM_CHAT_ID=$TELEGRAM_CHAT_ID" >> $BUILD_PATH/env
           echo "PR_NUMBER=$(jq -Mcer .pull_request.number $GITHUB_EVENT_PATH)" >> $BUILD_PATH/env
           echo "LABEL_ID_STAGING=$LABEL_ID_STAGING" >> $BUILD_PATH/env
+          echo "LABEL_ID_SNAPSHOT=$LABEL_ID_SNAPSHOT" >> $BUILD_PATH/env
           echo "VCS_DOMAIN=$VCS_DOMAIN" >> $BUILD_PATH/env
           docker run --rm \
            -e VCS_PAT=$VCS_PAT \
