@@ -45,20 +45,21 @@ for ((i=0; i<SIZE; i++)); do
  /bin/bash $SCRIPTS/github/issue.sh "$ISSUE_NUMBER" || exit 1 # todo
  IS_TESTED="$(jq ".labels|any(.id==$LABEL_ID_TARGET)" assemble/github/issue${ISSUE_NUMBER}.json)"
  IS_READY_FOR_TEST="$(jq ".labels|any(.id==$LABEL_ID_STAGING)" assemble/github/issue${ISSUE_NUMBER}.json)"
- case "$IS_TESTED" in
-  "true") echo "The issue #$ISSUE_NUMBER is already marked as \`$LABEL_NAME_TARGET\`.";;
-  "false")
-   case "$IS_READY_FOR_TEST" in
-    "true") echo "The issue #$ISSUE_NUMBER is not ready for test.";;
-    "false")
-     /bin/bash $SCRIPTS/github/issue/comment.sh "$ISSUE_NUMBER" "$MESSAGE" || exit 1 # todo
-     echo "$(jq ".+[$(cat assemble/github/issue${ISSUE_NUMBER}.json)]" assemble/github/fixed.json)" \
-      > assemble/github/fixed.json || exit 1
-    ;;
-    *) echo "The issue #$ISSUE_NUMBER label error!"; exit 1;;
-   esac
-  *) echo "The issue #$ISSUE_NUMBER label error!"; exit 1;;
- esac
+ if test "$IS_TESTED" == "true"; then
+  echo echo "The issue #$ISSUE_NUMBER is already marked as \`$LABEL_NAME_TARGET\`."
+ elif test "$IS_TESTED" == "false"; then
+  if test "$IS_READY_FOR_TEST" == "true"; then
+   echo "The issue #$ISSUE_NUMBER is not ready for test."
+  elif test "$IS_READY_FOR_TEST" == "false"; then
+   /bin/bash $SCRIPTS/github/issue/comment.sh "$ISSUE_NUMBER" "$MESSAGE" || exit 1 # todo
+   echo "$(jq ".+[$(cat assemble/github/issue${ISSUE_NUMBER}.json)]" assemble/github/fixed.json)" \
+    > assemble/github/fixed.json || exit 1
+  else
+   echo "The issue #$ISSUE_NUMBER label \"$LABEL_ID_STAGING\" error!"; exit 1 # todo
+  fi
+ else
+  echo "The issue #$ISSUE_NUMBER label \"$LABEL_ID_TARGET\" error!"; exit 1 # todo
+ fi
  /bin/bash $SCRIPTS/workflow/pr/staging/task/patch.sh "$ISSUE_NUMBER" "$LABEL_ID_TARGET" || exit 1 # todo
 done
 
