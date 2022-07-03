@@ -6,7 +6,8 @@ mkdir -p assemble/github
 
 SCRIPTS=repository/buildSrc/src/main/resources/bash
 
-. $SCRIPTS/util/require REPOSITORY_OWNER REPOSITORY_NAME GITHUB_RUN_NUMBER GITHUB_RUN_ID PR_NUMBER
+. $SCRIPTS/util/require REPOSITORY_OWNER REPOSITORY_NAME GITHUB_RUN_NUMBER GITHUB_RUN_ID PR_NUMBER \
+ LABEL_ID_SNAPSHOT LABEL_ID_STAGING
 
 GIT_COMMIT_DST=$($SCRIPTS/util/jqx -sfs assemble/vcs/pr${PR_NUMBER}.json .base.sha) \
  || . $SCRIPTS/util/throw $? "$(cat /tmp/jqx.o)"
