@@ -4,6 +4,9 @@ echo "Workflow pull request snapshot verify..."
 
 SCRIPTS=repository/buildSrc/src/main/resources/bash
 
+/bin/bash $SCRIPTS/project/verify/pre.sh \
+ || . $SCRIPTS/util/throw 21 "Pre verify unexpected error!"
+
 CODE=0
 
 JSON_PATH=repository/buildSrc/src/main/resources/json
