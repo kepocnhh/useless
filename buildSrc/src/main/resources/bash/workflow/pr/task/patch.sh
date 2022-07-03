@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "Workflow pull request staging task patch..."
+echo "Workflow pull request task patch..."
 
 SCRIPTS=repository/buildSrc/src/main/resources/bash
 

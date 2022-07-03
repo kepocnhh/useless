@@ -13,14 +13,23 @@ mkdir -p assemble/project
 /bin/bash $SCRIPTS/project/prepare.sh || exit 21
 /bin/bash $SCRIPTS/assemble/project/common.sh || exit 22
 
+/bin/bash $SCRIPTS/project/verify/pre.sh \
+ || . $SCRIPTS/util/throw 21 "Pre verify unexpected error!"
+
 CODE=0
 
-/bin/bash $SCRIPTS/project/verify.sh; CODE=$?
+JSON_PATH=repository/buildSrc/src/main/resources/json
+/bin/bash $SCRIPTS/project/verify/common.sh "$JSON_PATH/verify.json" \
+ && /bin/bash $SCRIPTS/project/verify/unit_test.sh; CODE=$?
 if test $CODE -ne 0; then
  mkdir -p diagnostics
- /bin/bash $SCRIPTS/project/diagnostics.sh && \
-  /bin/bash $SCRIPTS/vcs/diagnostics/report.sh && \
-  /bin/bash $SCRIPTS/workflow/verify/on_failed.sh || exit 1 # todo
+ echo "{}" > diagnostics/summary.json
+ /bin/bash $SCRIPTS/project/diagnostics/common.sh "$JSON_PATH/verify.json" \
+  && /bin/bash $SCRIPTS/project/diagnostics/unit_test.sh \
+  && /bin/bash $SCRIPTS/vcs/diagnostics/report.sh \
+  || . $SCRIPTS/util/throw 11 "Diagnostics unexpected error!"
+ /bin/bash $SCRIPTS/workflow/verify/on_failed.sh \
+  || . $SCRIPTS/util/throw 12 "On failed unexpected error!"
  exit 31
 fi
 

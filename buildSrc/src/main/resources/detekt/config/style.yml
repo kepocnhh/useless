@@ -54,6 +54,7 @@ style:
     active: true
   LibraryEntitiesShouldNotBePublic:
     active: true
+    excludes: ['**/src/main/kotlin/**/*.kt'] # todo
   LoopWithTooManyJumpStatements:
     active: true
     maxJumpCount: 1
@@ -70,6 +71,7 @@ style:
     ignoreEnums: false
     ignoreRanges: false
     ignoreExtensionFunctions: false
+    excludes: ['**/src/test/kotlin/**/*.kt'] # todo
   MandatoryBracesIfStatements:
     active: true
   MandatoryBracesLoops:

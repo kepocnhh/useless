@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "Workflow pull request staging release note html..."
+echo "Workflow pull request release note html..."
 
 if test $# -ne 1; then
  echo "Script needs for 1 argument but actual $#"; exit 11

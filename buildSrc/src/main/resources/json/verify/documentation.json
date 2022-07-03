@@ -3,6 +3,6 @@
     "report": "lib/build/reports/documentation/html",
     "path": "documentation",
     "title": "Documentation",
-    "task": "lib:verifydocumentation"
+    "task": "lib:verifyDocumentation"
   }
 }
