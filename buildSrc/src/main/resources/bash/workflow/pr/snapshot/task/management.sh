@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "Workflow pull request staging task management..."
+echo "Workflow pull request snapshot task management..."
 
 mkdir -p assemble/github
 
@@ -29,14 +29,14 @@ done
 
 VERSION_NAME=$($SCRIPTS/util/jqx -sfs assemble/project/common.json .version.name) \
  || . $SCRIPTS/util/throw $? "$(cat /tmp/jqx.o)"
-TAG="${VERSION_NAME}-STAGING"
+TAG="${VERSION_NAME}-SNAPSHOT"
 
 /bin/bash $SCRIPTS/github/labels.sh || exit 32
 SIZE=${#ISSUES[*]}
 echo "[]" > assemble/github/fixed.json
 ISSUES=($(printf "%s\n" "${ISSUES[@]}" | sort -u))
 SIZE=${#ISSUES[*]}
-LABEL_ID_TARGET="$LABEL_ID_STAGING"
+LABEL_ID_TARGET="$LABEL_ID_SNAPSHOT"
 LABEL_TARGET="$(jq ".[]|select(.id==$LABEL_ID_TARGET)" assemble/github/labels.json)"
 LABEL_NAME_TARGET="$(echo "$LABEL_TARGET" | jq -r .name)"
 REPOSITORY_URL=https://github.com/$REPOSITORY_OWNER/$REPOSITORY_NAME
@@ -44,7 +44,7 @@ TAG_URL="$REPOSITORY_URL/releases/tag/$TAG"
 BUILD_URL="$REPOSITORY_URL/actions/runs/$GITHUB_RUN_ID"
 MESSAGE="Marked as \`$LABEL_NAME_TARGET\` in [$TAG]($TAG_URL) by CI build [#$GITHUB_RUN_NUMBER]($BUILD_URL)."
 for ((i=0; i<SIZE; i++)); do
- /bin/bash $SCRIPTS/workflow/pr/staging/task/fix.sh "${ISSUES[$i]}" "$MESSAGE" || exit 1 # todo
+ /bin/bash $SCRIPTS/workflow/pr/snapshot/task/fix.sh "${ISSUES[$i]}" "$MESSAGE" || exit 1 # todo
 done
 
 /bin/bash $SCRIPTS/workflow/pr/release/note/html.sh "$TAG" || exit 1 # todo

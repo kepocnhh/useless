@@ -47,6 +47,7 @@ potential-bugs:
       kotlin.TODO,
       kotlinx.coroutines.launch
     ]
+    excludes: ['**/src/test/kotlin/**/*.kt'] # todo
   ImplicitDefaultLocale:
     active: true
   ImplicitUnitReturnType:

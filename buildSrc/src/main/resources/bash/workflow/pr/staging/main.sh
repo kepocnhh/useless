@@ -4,11 +4,7 @@ echo "Workflow pull request staging start..."
 
 SCRIPTS=repository/buildSrc/src/main/resources/bash
 
-mkdir -p assemble/vcs
-/bin/bash $SCRIPTS/assemble/vcs/repository.sh || exit 11
-/bin/bash $SCRIPTS/assemble/vcs/worker.sh || exit 12
-/bin/bash $SCRIPTS/assemble/vcs/pr.sh || exit 13
-/bin/bash $SCRIPTS/assemble/vcs/pr/commit.sh || exit 13
+/bin/bash $SCRIPTS/workflow/pr/assemble/vcs.sh || exit 11
 
 /bin/bash $SCRIPTS/vcs/pr/merge.sh || exit 21
 

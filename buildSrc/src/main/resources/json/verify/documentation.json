@@ -1,0 +1,8 @@
+{
+  "DOCUMENTATION": {
+    "report": "lib/build/reports/documentation/html",
+    "path": "documentation",
+    "title": "Documentation",
+    "task": "lib:verifyDocumentation"
+  }
+}
