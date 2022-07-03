@@ -8,10 +8,12 @@ fi
 
 TAG="$1"
 
-CODE=0
-git tag "$TAG"; CODE=$?
-if test $CODE -ne 0; then
- echo "Git tag failed!"; exit 41
-fi
+SCRIPTS=repository/buildSrc/src/main/resources/bash
+
+REPOSITORY=repository
+. $SCRIPTS/util/assert -d $REPOSITORY
+
+git -C $REPOSITORY tag "$TAG" \
+ || . $SCRIPTS/util/throw 41 "Git tag error!"
 
 exit 0

@@ -1,14 +1,14 @@
 #!/bin/bash
 
-echo "VCS release note report..."
+echo "VCS documentation push..."
+
+SCRIPTS=repository/buildSrc/src/main/resources/bash
 
 if test $# -ne 1; then
  echo "Script needs for 1 argument but actual $#"; exit 11
 fi
 
 TAG="$1"
-
-SCRIPTS=repository/buildSrc/src/main/resources/bash
 
 . $SCRIPTS/util/require VCS_PAT REPOSITORY_OWNER REPOSITORY_NAME GITHUB_RUN_NUMBER GITHUB_RUN_ID TAG
 
@@ -17,8 +17,9 @@ WORKER_NAME=$($SCRIPTS/util/jqx -sfs assemble/vcs/worker.json .name) \
 WORKER_VCS_EMAIL=$($SCRIPTS/util/jqx -sfs assemble/vcs/worker.json .vcs_email) \
  || . $SCRIPTS/util/throw $? "$(cat /tmp/jqx.o)"
 
-REPOSITORY=pages/release/note
+REPOSITORY=pages/documentation
 mkdir -p $REPOSITORY || exit 1 # todo
+. $SCRIPTS/util/assert -d $REPOSITORY
 
 git -C $REPOSITORY init \
  && git -C $REPOSITORY remote add origin \
@@ -27,11 +28,11 @@ git -C $REPOSITORY init \
  && git -C $REPOSITORY checkout gh-pages \
  || . $SCRIPTS/util/throw 11 "Git checkout error!"
 
-RELATIVE_PATH=$GITHUB_RUN_NUMBER/$GITHUB_RUN_ID/release/note
+RELATIVE_PATH=$GITHUB_RUN_NUMBER/$GITHUB_RUN_ID/documentation/$TAG
 mkdir -p $REPOSITORY/build/$RELATIVE_PATH || exit 1 # todo
-cp assemble/github/release_note.html $REPOSITORY/build/$RELATIVE_PATH/index.html || exit 1 # todo
+cp -r assemble/project/documentation/* $REPOSITORY/build/$RELATIVE_PATH || exit 1 # todo
 
-COMMIT_MESSAGE="CI build #$GITHUB_RUN_NUMBER | $WORKER_NAME added release note $TAG"
+COMMIT_MESSAGE="CI build #$GITHUB_RUN_NUMBER | $WORKER_NAME added documentation $TAG"
 
 git -C $REPOSITORY config user.name "$WORKER_NAME" \
  && git -C $REPOSITORY config user.email "$WORKER_VCS_EMAIL" \
@@ -39,7 +40,7 @@ git -C $REPOSITORY config user.name "$WORKER_NAME" \
 
 git -C $REPOSITORY add --all . \
  && git -C $REPOSITORY commit -m "$COMMIT_MESSAGE" \
- && git -C $REPOSITORY tag "release/note/$GITHUB_RUN_NUMBER/$GITHUB_RUN_ID" \
+ && git -C $REPOSITORY tag "documentation/$GITHUB_RUN_NUMBER/$GITHUB_RUN_ID" \
  || . $SCRIPTS/util/throw 42 "Git commit error!"
 
 git -C $REPOSITORY push \

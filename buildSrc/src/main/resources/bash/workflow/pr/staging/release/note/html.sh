@@ -10,10 +10,12 @@ TAG="$1"
 
 SCRIPTS=repository/buildSrc/src/main/resources/bash
 
-. $SCRIPTS/util/require TAG
+. $SCRIPTS/util/require REPOSITORY_OWNER REPOSITORY_NAME TAG
 
+REPOSITORY_URL=https://github.com/$REPOSITORY_OWNER/$REPOSITORY_NAME
+TAG_URL="$REPOSITORY_URL/releases/tag/$TAG"
 RELEASE_NOTE="<html>
-<h1>Release note <code>$TAG</code></h1>"
+<h1>Release note <a href="$TAG_URL">$TAG</a></h1>"
 SIZE=$(jq -e "length" assemble/github/fixed.json) || exit 1 # todo
 if test $SIZE -eq 0; then
  RELEASE_NOTE="$RELEASE_NOTE
