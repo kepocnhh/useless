@@ -37,13 +37,17 @@ TAG="${VERSION_NAME}-SNAPSHOT"
 REPOSITORY_URL=https://github.com/$REPOSITORY_OWNER/$REPOSITORY_NAME
 PAGES_URL="https://${REPOSITORY_OWNER}.github.io/$REPOSITORY_NAME"
 RELEASE_NOTE_URL="$PAGES_URL/build/$GITHUB_RUN_NUMBER/$GITHUB_RUN_ID/release/note/index.html"
+DOCUMENTATION_URL="$PAGES_URL/build/$GITHUB_RUN_NUMBER/$GITHUB_RUN_ID/documentation/$TAG/index.html"
 TAG_URL="$REPOSITORY_URL/releases/tag/$TAG"
-
 MAVEN_URL="https://s01.oss.sonatype.org/content/repositories/snapshots"
-MESSAGE="Merged by CI build [#$GITHUB_RUN_NUMBER]($REPOSITORY_URL/actions/runs/$GITHUB_RUN_ID)
- - tag [$TAG]($TAG_URL)
+
+REPORT=" - tag [$TAG]($TAG_URL)
  - maven [snapshot](${MAVEN_URL}/${MAVEN_GROUP_ID//.//}/${MAVEN_ARTIFACT_ID}/${TAG})
+ - documentation [here]($DOCUMENTATION_URL)
  - release [note]($RELEASE_NOTE_URL)"
+
+MESSAGE="Merged by CI build [#$GITHUB_RUN_NUMBER]($REPOSITORY_URL/actions/runs/$GITHUB_RUN_ID)
+$REPORT"
 
 /bin/bash $SCRIPTS/vcs/pr/comment.sh "$MESSAGE" || exit 31 # todo
 
@@ -57,9 +61,7 @@ MESSAGE="CI build [#$GITHUB_RUN_NUMBER]($REPOSITORY_URL/actions/runs/$GITHUB_RUN
 \`*\` [${GIT_COMMIT_DST::7}]($REPOSITORY_URL/commit/$GIT_COMMIT_DST) by [$AUTHOR_NAME_DST]($AUTHOR_HTML_URL_DST)
 
 The pull request [#$PR_NUMBER]($REPOSITORY_URL/pull/$PR_NUMBER) merged by [$WORKER_NAME]($WORKER_HTML_URL)
- - tag [$TAG]($TAG_URL)
- - maven [snapshot](${MAVEN_URL}/${MAVEN_GROUP_ID//.//}/${MAVEN_ARTIFACT_ID}/${TAG})
- - release [note]($RELEASE_NOTE_URL)"
+$REPORT"
 
 /bin/bash $SCRIPTS/notification/telegram/send_message.sh "$MESSAGE" || exit 32
 

@@ -17,9 +17,14 @@ BODY="$(echo "$BODY" | jq -Mc ".tag_name=\"$TAG\"")"
 BODY="$(echo "$BODY" | jq -Mc ".target_commitish=\"$GIT_COMMIT_SHA\"")"
 REPOSITORY_URL=https://github.com/$REPOSITORY_OWNER/$REPOSITORY_NAME
 MESSAGE="CI build [#$GITHUB_RUN_NUMBER]($REPOSITORY_URL/actions/runs/$GITHUB_RUN_ID)"
+
 MAVEN_URL="https://s01.oss.sonatype.org/content/repositories/snapshots"
 MESSAGE="$MESSAGE\n - maven [snapshot](${MAVEN_URL}/${MAVEN_GROUP_ID//.//}/${MAVEN_ARTIFACT_ID}/${TAG})"
+
 PAGES_URL="https://${REPOSITORY_OWNER}.github.io/$REPOSITORY_NAME"
+DOCUMENTATION_URL="$PAGES_URL/build/$GITHUB_RUN_NUMBER/$GITHUB_RUN_ID/documentation/$TAG/index.html"
+MESSAGE="$MESSAGE\n - documentation [here]($DOCUMENTATION_URL)"
+
 RELEASE_NOTE_URL="$PAGES_URL/build/$GITHUB_RUN_NUMBER/$GITHUB_RUN_ID/release/note/index.html"
 MESSAGE="$MESSAGE\n - release [note]($RELEASE_NOTE_URL)"
 BODY="$(echo "$BODY" | jq -Mc ".body=\"$MESSAGE\"")"
