@@ -103,9 +103,31 @@ kotlin.sourceSets.forEach {
     val tag = "${Version.name}-${variant.toUpperCase()}"
     task<Jar>("assemble${variant.capitalize()}Jar") {
         dependsOn(compileKotlinTask)
-        archiveBaseName.set(Repository.name)
+        archiveBaseName.set(Maven.artifactId)
         archiveVersion.set(tag)
         from(compileKotlinTask.destinationDirectory.asFileTree)
+    }
+    task<Jar>("assemble${variant.capitalize()}Source") {
+        archiveBaseName.set(Maven.artifactId)
+        archiveVersion.set(tag)
+        archiveClassifier.set("sources")
+        from("src/main")
+    }
+    task<Jar>("assemble${variant.capitalize()}Pom") {
+        doLast {
+            val parent = File(buildDir, "libs")
+            if (!parent.exists()) parent.mkdirs()
+            val file = File(parent, "${Maven.artifactId}-${tag}.pom")
+            if (file.exists()) file.delete()
+            val text = MavenUtil.pom(
+                modelVersion = "4.0.0",
+                groupId = Maven.groupId,
+                artifactId = Maven.artifactId,
+                version = tag,
+                packaging = "jar"
+            )
+            file.writeText(text)
+        }
     }
     task<org.jetbrains.dokka.gradle.DokkaTask>("assemble${variant.capitalize()}Documentation") {
         outputDirectory.set(File(buildDir, "documentation/$variant"))
