@@ -1,0 +1,11 @@
+$dokka.format:html-v1
+$dokka.linkExtension:html
+$dokka.location:org.kepocnhh.useless////PointingToDeclaration/useless/org.kepocnhh.useless/index.html
+$dokka.location:org.kepocnhh.useless/NumberUtil///PointingToDeclaration/useless/org.kepocnhh.useless/-number-util/index.html
+$dokka.location:org.kepocnhh.useless/NumberUtil/getOne/#/PointingToDeclaration/useless/org.kepocnhh.useless/-number-util/get-one.html
+$dokka.location:org.kepocnhh.useless/NumberUtil/getTwo/#/PointingToDeclaration/useless/org.kepocnhh.useless/-number-util/get-two.html
+$dokka.location:org.kepocnhh.useless/NumberUtil/getZero/#/PointingToDeclaration/useless/org.kepocnhh.useless/-number-util/get-zero.html
+$dokka.location:org.kepocnhh.useless/NumberUtil/isOne/#kotlin.Int/PointingToDeclaration/useless/org.kepocnhh.useless/-number-util/is-one.html
+$dokka.location:org.kepocnhh.useless/NumberUtil/isZero/#kotlin.Int/PointingToDeclaration/useless/org.kepocnhh.useless/-number-util/is-zero.html
+org.kepocnhh.useless
+
