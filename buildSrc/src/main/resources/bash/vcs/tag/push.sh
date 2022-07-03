@@ -1,13 +1,13 @@
 #!/bin/bash
 
-echo "VCS push..."
+echo "VCS tag push..."
 
 SCRIPTS=repository/buildSrc/src/main/resources/bash
 
 REPOSITORY=repository
 . $SCRIPTS/util/assert -d $REPOSITORY
 
-git -C $REPOSITORY push \
- || . $SCRIPTS/util/throw 41 "Git push error!"
+git -C $REPOSITORY push --tag \
+ || . $SCRIPTS/util/throw 41 "Git tag push error!"
 
 exit 0

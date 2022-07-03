@@ -4,7 +4,7 @@ echo "Workflow pull request unstable VCS release..."
 
 SCRIPTS=repository/buildSrc/src/main/resources/bash
 
-. $SCRIPTS/util/require REPOSITORY_NAME
+. $SCRIPTS/util/require REPOSITORY_OWNER REPOSITORY_NAME GITHUB_RUN_NUMBER GITHUB_RUN_ID
 
 VERSION_NAME=$($SCRIPTS/util/jqx -sfs assemble/project/common.json .version.name) \
  || . $SCRIPTS/util/throw $? "$(cat /tmp/jqx.o)"
@@ -15,7 +15,8 @@ GIT_COMMIT_SHA=$($SCRIPTS/util/jqx -sfs assemble/vcs/commit.json .sha) \
 BODY="$(echo "{}" | jq -Mc ".name=\"$TAG\"")"
 BODY="$(echo "$BODY" | jq -Mc ".tag_name=\"$TAG\"")"
 BODY="$(echo "$BODY" | jq -Mc ".target_commitish=\"$GIT_COMMIT_SHA\"")"
-BODY="$(echo "$BODY" | jq -Mc ".body=\"CI build #$GITHUB_RUN_NUMBER\"")"
+REPOSITORY_URL=https://github.com/$REPOSITORY_OWNER/$REPOSITORY_NAME
+BODY="$(echo "$BODY" | jq -Mc ".body=\"CI build [#$GITHUB_RUN_NUMBER]($REPOSITORY_URL/actions/runs/$GITHUB_RUN_ID)\"")"
 BODY="$(echo "$BODY" | jq -Mc ".draft=false")"
 BODY="$(echo "$BODY" | jq -Mc ".prerelease=true")"
 mkdir -p assemble/github
