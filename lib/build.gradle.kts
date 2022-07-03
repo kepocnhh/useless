@@ -117,7 +117,7 @@ kotlin.sourceSets.forEach {
         doLast {
             val parent = File(buildDir, "libs")
             if (!parent.exists()) parent.mkdirs()
-            val file = File(parent, "${Maven.artifactId}-${tag}.pom")
+            val file = File(parent, "${Maven.artifactId}-$tag.pom")
             if (file.exists()) file.delete()
             val text = MavenUtil.pom(
                 modelVersion = "4.0.0",
