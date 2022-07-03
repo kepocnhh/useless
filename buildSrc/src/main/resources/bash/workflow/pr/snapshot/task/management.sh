@@ -40,7 +40,9 @@ LABEL_ID_TARGET="$LABEL_ID_SNAPSHOT"
 LABEL_TARGET="$(jq ".[]|select(.id==$LABEL_ID_TARGET)" assemble/github/labels.json)"
 LABEL_NAME_TARGET="$(echo "$LABEL_TARGET" | jq -r .name)"
 REPOSITORY_URL=https://github.com/$REPOSITORY_OWNER/$REPOSITORY_NAME
-MESSAGE="Marked as \`$LABEL_NAME_TARGET\` in \`$TAG\` by CI build [#$GITHUB_RUN_NUMBER]($REPOSITORY_URL/actions/runs/$GITHUB_RUN_ID)."
+TAG_URL="$REPOSITORY_URL/releases/tag/$TAG"
+BUILD_URL="$REPOSITORY_URL/actions/runs/$GITHUB_RUN_ID"
+MESSAGE="Marked as \`$LABEL_NAME_TARGET\` in [$TAG]($TAG_URL) by CI build [#$GITHUB_RUN_NUMBER]($BUILD_URL)."
 for ((i=0; i<SIZE; i++)); do
  ISSUE_NUMBER="${ISSUES[$i]}"
  /bin/bash $SCRIPTS/github/issue.sh "$ISSUE_NUMBER" || exit 1 # todo
@@ -50,11 +52,11 @@ for ((i=0; i<SIZE; i++)); do
   echo echo "The issue #$ISSUE_NUMBER is already marked as \`$LABEL_NAME_TARGET\`."
  elif test "$IS_TESTED" == "false"; then
   if test "$IS_READY_FOR_TEST" == "true"; then
-   echo "The issue #$ISSUE_NUMBER is not ready for test."
-  elif test "$IS_READY_FOR_TEST" == "false"; then
    /bin/bash $SCRIPTS/github/issue/comment.sh "$ISSUE_NUMBER" "$MESSAGE" || exit 1 # todo
    echo "$(jq ".+[$(cat assemble/github/issue${ISSUE_NUMBER}.json)]" assemble/github/fixed.json)" \
     > assemble/github/fixed.json || exit 1
+  elif test "$IS_READY_FOR_TEST" == "false"; then
+   echo "The issue #$ISSUE_NUMBER is not ready for test."
   else
    echo "The issue #$ISSUE_NUMBER label \"$LABEL_ID_STAGING\" error!"; exit 1 # todo
   fi
