@@ -1,18 +1,23 @@
 from kepocnhh/gradle-amd64:7.3
 
+arg VERSION_CI_EXTENSION
+
+run mkdir -p /opt/GitHubCIExtension
+workdir /opt/GitHubCIExtension
+run git init \
+ && git remote add origin \
+  https://github.com/kepocnhh/GitHubCIExtension.git \
+ && git fetch --depth=1 origin $VERSION_CI_EXTENSION \
+ && git checkout FETCH_HEAD
+
 arg REPOSITORY_OWNER
 arg REPOSITORY_NAME
 
 run mkdir -p /${REPOSITORY_OWNER}/${REPOSITORY_NAME}/repository
 workdir /${REPOSITORY_OWNER}/${REPOSITORY_NAME}
-
-arg VERSION_CI_EXTENSION
-
-run git init && \
- git remote add origin \
-  https://github.com/kepocnhh/GitHubCIExtension.git && \
- git fetch --depth=1 origin $VERSION_CI_EXTENSION && \
- git checkout FETCH_HEAD
+run mkdir -p ex \
+ && cp -r /opt/GitHubCIExtension/common/bash/* ex \
+ && cp -r /opt/GitHubCIExtension/kotlin/lib/bash/* ex
 
 arg VCS_PAT
 arg GIT_BRANCH_SRC
