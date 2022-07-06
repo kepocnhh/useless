@@ -1,5 +1,7 @@
 from kepocnhh/gradle-amd64:7.3
 
+arg VERSION_CI_EXTENSION
+
 run mkdir -p /opt/GitHubCIExtension
 workdir /opt/GitHubCIExtension
 run git init \
@@ -16,8 +18,6 @@ workdir /${REPOSITORY_OWNER}/${REPOSITORY_NAME}
 run mkdir -p ex \
  && cp -r /opt/GitHubCIExtension/common/bash/* ex \
  && cp -r /opt/GitHubCIExtension/kotlin/lib/bash/* ex
-
-arg VERSION_CI_EXTENSION
 
 arg VCS_PAT
 arg GIT_BRANCH_SRC
