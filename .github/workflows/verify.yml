@@ -15,20 +15,20 @@ jobs:
       VCS_PAT: ${{secrets.PERSONAL_ACCESS_TOKEN}}
     steps:
       - run: |
-          echo "HOME=$(echo ~)" >> $GITHUB_ENV
-          echo "BUILD_PATH=$HOME/$(jq -r .workflow $GITHUB_EVENT_PATH | base64)/$GITHUB_RUN_NUMBER/$GITHUB_RUN_ID" >> $GITHUB_ENV
           echo "REPOSITORY_OWNER=$(jq -r .repository.owner.login $GITHUB_EVENT_PATH)" >> $GITHUB_ENV
           echo "REPOSITORY_NAME=$(jq -r .repository.name $GITHUB_EVENT_PATH)" >> $GITHUB_ENV
           echo "GIT_BRANCH_SRC=${{github.event.inputs.git_source}}" >> $GITHUB_ENV
           if test -z "$VCS_PAT"; then exit 21; fi
-      - run: |
-          mkdir -p $BUILD_PATH/repository
-          git -C $BUILD_PATH/repository init
-          git -C $BUILD_PATH/repository remote add origin https://$VCS_PAT@github.com/$REPOSITORY_OWNER/$REPOSITORY_NAME.git
-          git -C $BUILD_PATH/repository fetch --depth=1 origin $GIT_BRANCH_SRC
-          git -C $BUILD_PATH/repository checkout FETCH_HEAD
-          cat "$BUILD_PATH/repository/.github/env" >> $GITHUB_ENV
-      - run: |
+          mkdir -p repository
+      - working-directory: repository
+        run: |
+          git -C init
+          git -C remote add origin https://$VCS_PAT@github.com/$REPOSITORY_OWNER/$REPOSITORY_NAME.git
+          git -C fetch --depth=1 origin $GIT_BRANCH_SRC
+          git -C checkout FETCH_HEAD
+          cat .github/env >> $GITHUB_ENV
+      - working-directory: repository
+        run: |
           docker build --no-cache \
            --build-arg REPOSITORY_OWNER=$REPOSITORY_OWNER \
            --build-arg REPOSITORY_NAME=$REPOSITORY_NAME \
@@ -36,22 +36,21 @@ jobs:
            --build-arg VCS_PAT=$VCS_PAT \
            --build-arg GIT_BRANCH_SRC=$GIT_BRANCH_SRC \
            -t image.verify:$GITHUB_RUN_NUMBER \
-           -f $BUILD_PATH/repository/buildSrc/src/main/resources/docker/checkout.FETCH_HEAD.docker $BUILD_PATH/repository
+           -f buildSrc/src/main/resources/docker/checkout.FETCH_HEAD.docker .
       - env:
           TELEGRAM_BOT_ID: ${{secrets.TELEGRAM_BOT_ID}}
           TELEGRAM_BOT_TOKEN: ${{secrets.TELEGRAM_BOT_TOKEN}}
           TELEGRAM_CHAT_ID: ${{secrets.TELEGRAM_CHAT_ID}}
         run: |
-          echo "REPOSITORY_OWNER=$REPOSITORY_OWNER" > $BUILD_PATH/env
-          echo "REPOSITORY_NAME=$REPOSITORY_NAME" >> $BUILD_PATH/env
-          echo "GITHUB_RUN_NUMBER=$GITHUB_RUN_NUMBER" >> $BUILD_PATH/env
-          echo "GITHUB_RUN_ID=$GITHUB_RUN_ID" >> $BUILD_PATH/env
-          echo "TELEGRAM_BOT_ID=$TELEGRAM_BOT_ID" >> $BUILD_PATH/env
-          echo "TELEGRAM_CHAT_ID=$TELEGRAM_CHAT_ID" >> $BUILD_PATH/env
           docker run --rm \
            -e VCS_PAT=$VCS_PAT \
            -e TELEGRAM_BOT_TOKEN=$TELEGRAM_BOT_TOKEN \
-           -e VCS_DOMAIN="$VCS_DOMAIN" \
-           --env-file $BUILD_PATH/env \
+           -e VCS_DOMAIN=$VCS_DOMAIN \
+           -e REPOSITORY_OWNER=$REPOSITORY_OWNER \
+           -e REPOSITORY_NAME=$REPOSITORY_NAME \
+           -e GITHUB_RUN_NUMBER=$GITHUB_RUN_NUMBER \
+           -e GITHUB_RUN_ID=$GITHUB_RUN_ID \
+           -e TELEGRAM_BOT_ID=$TELEGRAM_BOT_ID \
+           -e TELEGRAM_CHAT_ID=$TELEGRAM_CHAT_ID \
            --name container.verify image.verify:$GITHUB_RUN_NUMBER \
-           /bin/bash ex/workflow/verify/main.sh
+           ex/workflow/verify/main.sh
