@@ -14,21 +14,22 @@ jobs:
     steps:
       - run: |
           echo "HOME=$(echo ~)" >> $GITHUB_ENV
-          echo "BUILD_PATH=$HOME/$(jq -Mcer .workflow $GITHUB_EVENT_PATH | base64)/$GITHUB_RUN_NUMBER/$GITHUB_RUN_ID" >> $GITHUB_ENV
+          echo "BUILD_PATH=$HOME/$(jq -r .workflow $GITHUB_EVENT_PATH | base64)/$GITHUB_RUN_NUMBER/$GITHUB_RUN_ID" >> $GITHUB_ENV
           echo "REPOSITORY_OWNER=$(jq -r .repository.owner.login $GITHUB_EVENT_PATH)" >> $GITHUB_ENV
           echo "REPOSITORY_NAME=$(jq -r .repository.name $GITHUB_EVENT_PATH)" >> $GITHUB_ENV
-          if test "$VCS_PAT" == ""; then exit 21; fi
+          if test -z "$VCS_PAT"; then exit 21; fi
       - run: |
           mkdir -p $BUILD_PATH/repository
           git -C $BUILD_PATH/repository init
           git -C $BUILD_PATH/repository remote add origin https://$VCS_PAT@github.com/$REPOSITORY_OWNER/$REPOSITORY_NAME.git
-          git -C $BUILD_PATH/repository fetch --depth=1 origin $(jq -Mcer .pull_request.head.sha $GITHUB_EVENT_PATH)
+          git -C $BUILD_PATH/repository fetch --depth=1 origin $(jq -r .pull_request.head.sha $GITHUB_EVENT_PATH)
           git -C $BUILD_PATH/repository checkout FETCH_HEAD
           cat "$BUILD_PATH/repository/.github/env" >> $GITHUB_ENV
       - run: |
           docker build --no-cache \
            --build-arg REPOSITORY_OWNER=$REPOSITORY_OWNER \
            --build-arg REPOSITORY_NAME=$REPOSITORY_NAME \
+           --build-arg VERSION_CI_EXTENSION=$VERSION_CI_EXTENSION \
            --build-arg VCS_PAT=$VCS_PAT \
            --build-arg GIT_BRANCH_SRC=$(jq -r .pull_request.head.ref $GITHUB_EVENT_PATH) \
            -t image.pr.staging:$GITHUB_RUN_NUMBER \
@@ -44,7 +45,7 @@ jobs:
           echo "GITHUB_RUN_ID=$GITHUB_RUN_ID" >> $BUILD_PATH/env
           echo "TELEGRAM_BOT_ID=$TELEGRAM_BOT_ID" >> $BUILD_PATH/env
           echo "TELEGRAM_CHAT_ID=$TELEGRAM_CHAT_ID" >> $BUILD_PATH/env
-          echo "PR_NUMBER=$(jq -Mcer .pull_request.number $GITHUB_EVENT_PATH)" >> $BUILD_PATH/env
+          echo "PR_NUMBER=$(jq -r .pull_request.number $GITHUB_EVENT_PATH)" >> $BUILD_PATH/env
           echo "LABEL_ID_STAGING=$LABEL_ID_STAGING" >> $BUILD_PATH/env
           echo "LABEL_ID_SNAPSHOT=$LABEL_ID_SNAPSHOT" >> $BUILD_PATH/env
           echo "VCS_DOMAIN=$VCS_DOMAIN" >> $BUILD_PATH/env
@@ -53,4 +54,4 @@ jobs:
            -e TELEGRAM_BOT_TOKEN=$TELEGRAM_BOT_TOKEN \
            --env-file $BUILD_PATH/env \
            --name container.pr.staging image.pr.staging:$GITHUB_RUN_NUMBER \
-           /bin/bash repository/buildSrc/src/main/resources/bash/workflow/pr/staging/main.sh
+           ex/workflow/pr/staging/main.sh
