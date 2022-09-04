@@ -52,6 +52,7 @@ jobs:
            -e TELEGRAM_CHAT_ID="$(echo "$TELEGRAM" | base64 -d | jq -Mcer ".chat.kepocnhh.id")" \
            -e KEYSTORE="$(echo "$KEYSTORES" | base64 -d | jq -Mcer ".${KEY_ALIAS}.base64")" \
            -e KEYSTORE_PASSWORD="$(echo "$KEYSTORES" | base64 -d | jq -Mcer ".${KEY_ALIAS}.password")" \
+           -e KEY_ALIAS=$KEY_ALIAS \
            -e KEY_X509_SHA512="$(echo "$FINGERPRINTS" | base64 -d | jq -Mcer ".key.${KEY_ALIAS}.x509.sha512")" \
            -e PR_NUMBER=$(jq -r .pull_request.number $GITHUB_EVENT_PATH) \
            --name container.pr.unstable image.pr.unstable:$GITHUB_RUN_NUMBER \
