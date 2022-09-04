@@ -35,6 +35,9 @@ jobs:
            -t image.pr.unstable:$GITHUB_RUN_NUMBER \
            -f buildSrc/src/main/resources/docker/checkout.GIT_BRANCH_SRC.docker .
       - env:
+          KEY_ALIAS: debug
+          KEYSTORES: ${{secrets.KEYSTORES}}
+          FINGERPRINTS: ${{secrets.FINGERPRINTS}}
           TELEGRAM: ${{secrets.TELEGRAM}}
         run: |
           docker run --rm \
@@ -47,6 +50,9 @@ jobs:
            -e TELEGRAM_BOT_ID="$(echo "$TELEGRAM" | base64 -d | jq -Mcer ".bot.continuousibot.id")" \
            -e TELEGRAM_BOT_TOKEN="$(echo "$TELEGRAM" | base64 -d | jq -Mcer ".bot.continuousibot.token")" \
            -e TELEGRAM_CHAT_ID="$(echo "$TELEGRAM" | base64 -d | jq -Mcer ".chat.kepocnhh.id")" \
+           -e KEYSTORE="$(echo "$KEYSTORES" | base64 -d | jq -Mcer ".${KEY_ALIAS}.base64")" \
+           -e KEYSTORE_PASSWORD="$(echo "$KEYSTORES" | base64 -d | jq -Mcer ".${KEY_ALIAS}.password")" \
+           -e KEY_X509_SHA512="$(echo "$FINGERPRINTS" | base64 -d | jq -Mcer ".key.${KEY_ALIAS}.x509.sha512")" \
            -e PR_NUMBER=$(jq -r .pull_request.number $GITHUB_EVENT_PATH) \
            --name container.pr.unstable image.pr.unstable:$GITHUB_RUN_NUMBER \
            ex/workflow/pr/unstable/main.sh
