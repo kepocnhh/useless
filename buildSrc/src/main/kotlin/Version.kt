@@ -6,5 +6,5 @@ object Version {
     const val junit = "4.13.2"
     const val kotlin = "1.6.21"
     const val ktlint = "0.45.2"
-    const val name = "0.6"
+    const val name = "0.6a"
 }
