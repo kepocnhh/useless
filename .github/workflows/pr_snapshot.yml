@@ -35,28 +35,32 @@ jobs:
            -t image.pr.snapshot:$GITHUB_RUN_NUMBER \
            -f buildSrc/src/main/resources/docker/checkout.GIT_BRANCH_SRC.docker .
       - env:
-          MAVEN_SNAPSHOT_USERNAME: ${{secrets.MAVEN_SNAPSHOT_USERNAME}}
-          MAVEN_SNAPSHOT_PASSWORD: ${{secrets.MAVEN_SNAPSHOT_PASSWORD}}
-          TELEGRAM_BOT_ID: ${{secrets.TELEGRAM_BOT_ID}}
-          TELEGRAM_BOT_TOKEN: ${{secrets.TELEGRAM_BOT_TOKEN}}
-          TELEGRAM_CHAT_ID: ${{secrets.TELEGRAM_CHAT_ID}}
+          MAVEN: ${{secrets.MAVEN}}
+          KEY_ALIAS: debug
+          KEYSTORES: ${{secrets.KEYSTORES}}
+          FINGERPRINTS: ${{secrets.FINGERPRINTS}}
+          TELEGRAM: ${{secrets.TELEGRAM}}
         run: |
           docker run --rm \
            -e VCS_PAT=$VCS_PAT \
-           -e TELEGRAM_BOT_TOKEN=$TELEGRAM_BOT_TOKEN \
            -e VCS_DOMAIN=$VCS_DOMAIN \
            -e REPOSITORY_OWNER=$REPOSITORY_OWNER \
            -e REPOSITORY_NAME=$REPOSITORY_NAME \
            -e GITHUB_RUN_NUMBER=$GITHUB_RUN_NUMBER \
            -e GITHUB_RUN_ID=$GITHUB_RUN_ID \
-           -e TELEGRAM_BOT_ID=$TELEGRAM_BOT_ID \
-           -e TELEGRAM_CHAT_ID=$TELEGRAM_CHAT_ID \
+           -e TELEGRAM_BOT_ID="$(echo "$TELEGRAM" | base64 -d | jq -Mcer ".bot.continuousibot.id")" \
+           -e TELEGRAM_BOT_TOKEN="$(echo "$TELEGRAM" | base64 -d | jq -Mcer ".bot.continuousibot.token")" \
+           -e TELEGRAM_CHAT_ID="$(echo "$TELEGRAM" | base64 -d | jq -Mcer ".chat.kepocnhh.id")" \
+           -e KEYSTORE="$(echo "$KEYSTORES" | base64 -d | jq -Mcer ".${KEY_ALIAS}.base64")" \
+           -e KEYSTORE_PASSWORD="$(echo "$KEYSTORES" | base64 -d | jq -Mcer ".${KEY_ALIAS}.password")" \
+           -e KEY_ALIAS=$KEY_ALIAS \
+           -e KEY_X509_SHA512="$(echo "$FINGERPRINTS" | base64 -d | jq -Mcer ".key.${KEY_ALIAS}.x509.sha512")" \
            -e PR_NUMBER=$(jq -r .pull_request.number $GITHUB_EVENT_PATH) \
            -e LABEL_ID_STAGING=$LABEL_ID_STAGING \
            -e LABEL_ID_SNAPSHOT=$LABEL_ID_SNAPSHOT \
            -e MAVEN_GROUP_ID=$MAVEN_GROUP_ID \
            -e MAVEN_ARTIFACT_ID=$REPOSITORY_NAME \
-           -e MAVEN_SNAPSHOT_USERNAME=$MAVEN_SNAPSHOT_USERNAME \
-           -e MAVEN_SNAPSHOT_PASSWORD=$MAVEN_SNAPSHOT_PASSWORD \
+           -e MAVEN_USERNAME="$(echo "$MAVEN" | base64 -d | jq -Mcer ".snapshot.username")" \
+           -e MAVEN_PASSWORD="$(echo "$MAVEN" | base64 -d | jq -Mcer ".snapshot.password")" \
            --name container.pr.snapshot image.pr.snapshot:$GITHUB_RUN_NUMBER \
            ex/workflow/pr/snapshot/main.sh
