@@ -1,7 +1,7 @@
 repositories.mavenCentral()
 
 plugins {
-    id("org.gradle.kotlin.kotlin-dsl") version "2.1.7"
+    id("org.gradle.kotlin.kotlin-dsl") version "2.3.3"
 }
 
 val jvmTarget = "1.8"
