@@ -2,9 +2,6 @@ package org.kepocnhh.useless
 
 import java.util.Date
 
-/**
- * Test documentation class.
- */
 object NumberUtil {
     private const val ZERO = 0
     private const val ONE = 1
