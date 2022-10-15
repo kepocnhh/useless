@@ -12,7 +12,7 @@ object NumberUtil {
      * Test documentation method.
      */
     fun getZero(): Int {
-        return ONE
+        return ZERO
     }
 
     /**
