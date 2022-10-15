@@ -1,5 +1,7 @@
 package org.kepocnhh.useless
 
+import java.util.Date
+
 /**
  * Test documentation class.
  */
