@@ -11,7 +11,7 @@ object NumberUtil {
     /**
      * Test documentation method.
      */
-    fun getZero(): Int {
+    fun getZero (): Int {
         return ZERO
     }
 
