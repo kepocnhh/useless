@@ -1,5 +1,6 @@
 package org.kepocnhh.useless
 
+import java.util.Date
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
